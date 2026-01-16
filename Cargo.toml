@@ -1,0 +1,14 @@
+[package]
+name = "wbc"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.100"
+argon2 = "0.5.3"
+csv_db = { path = "../csv_db" }
+rocket = "0.5.1"
+rocket_dyn_templates = { version = "0.2.0", features = ["tera"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_derive = "1.0.228"
+uuid = { version = "1.19.0", features = ["v4"] }
