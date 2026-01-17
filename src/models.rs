@@ -52,3 +52,10 @@ async fn get_user(token: &str, db: &State<Mutex<Database<&str>>>) -> Option<User
         .first()
         .map(|u| u.to_owned())
 }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Driver {
+    pub number: u8,
+    pub code: String,
+    pub name: String,
+}

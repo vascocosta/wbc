@@ -6,7 +6,7 @@ use csv_db::{Database, DbError};
 use rocket::{State, tokio::sync::Mutex};
 use uuid::Uuid;
 
-use crate::models::User;
+use crate::models::{Driver, User};
 
 pub struct UserStore<'a> {
     db: &'a State<Mutex<Database<&'static str>>>,
@@ -81,5 +81,19 @@ impl<'a> UserStore<'a> {
             .hash_password(password.as_bytes(), &salt)
             .map_err(|_| "Could not hash password")?
             .to_string())
+    }
+}
+
+pub struct DriverStore<'a> {
+    db: &'a State<Mutex<Database<&'static str>>>,
+}
+
+impl<'a> DriverStore<'a> {
+    pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
+        Self { db }
+    }
+
+    pub async fn all_drivers(&self) -> Result<Vec<Driver>, DbError> {
+        self.db.lock().await.find("drivers", |_| true).await
     }
 }

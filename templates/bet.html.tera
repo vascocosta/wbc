@@ -3,11 +3,7 @@
 {% block title %}Bet{% endblock title %}
 
 {% block content %}
-<h1>Bet</h1>
-
-<p>
-    Select your top 5 drivers.
-</p>
+<h1>Place Bet</h1>
 
 <form action="/bet" method="post">
 
@@ -15,16 +11,9 @@
         <label for="p1">P1</label>
         <select id="p1" name="p1" required>
             <option value="">-- Select Driver --</option>
-            <option value="VER">VER</option>
-            <option value="PER">PER</option>
-            <option value="ANT">ANT</option>
-            <option value="RUS">RUS</option>
-            <option value="LEC">LEC</option>
-            <option value="SAI">SAI</option>
-            <option value="NOR">NOR</option>
-            <option value="PIA">PIA</option>
-            <option value="ALO">ALO</option>
-            <option value="STR">STR</option>
+            {% for driver in drivers %}
+                <option value="{{ driver.code }}">{{ driver.code }} ({{ driver.name }})</option>
+            {% endfor %}
         </select>
     </div>
 
@@ -32,16 +21,9 @@
         <label for="p2">P2</label>
         <select id="p2" name="p2" required>
             <option value="">-- Select Driver --</option>
-            <option value="VER">VER</option>
-            <option value="PER">PER</option>
-            <option value="ANT">ANT</option>
-            <option value="RUS">RUS</option>
-            <option value="LEC">LEC</option>
-            <option value="SAI">SAI</option>
-            <option value="NOR">NOR</option>
-            <option value="PIA">PIA</option>
-            <option value="ALO">ALO</option>
-            <option value="STR">STR</option>
+            {% for driver in drivers %}
+                <option value="{{ driver.code }}">{{ driver.code }} ({{ driver.name }})</option>
+            {% endfor %}
         </select>
     </div>
 
@@ -49,16 +31,9 @@
         <label for="p3">P3</label>
         <select id="p3" name="p3" required>
             <option value="">-- Select Driver --</option>
-            <option value="VER">VER</option>
-            <option value="PER">PER</option>
-            <option value="ANT">ANT</option>
-            <option value="RUS">RUS</option>
-            <option value="LEC">LEC</option>
-            <option value="SAI">SAI</option>
-            <option value="NOR">NOR</option>
-            <option value="PIA">PIA</option>
-            <option value="ALO">ALO</option>
-            <option value="STR">STR</option>
+            {% for driver in drivers %}
+                <option value="{{ driver.code }}">{{ driver.code }} ({{ driver.name }})</option>
+            {% endfor %}
         </select>
     </div>
 
@@ -66,16 +41,9 @@
         <label for="p4">P4</label>
         <select id="p4" name="p4" required>
             <option value="">-- Select Driver --</option>
-            <option value="VER">VER</option>
-            <option value="PER">PER</option>
-            <option value="ANT">ANT</option>
-            <option value="RUS">RUS</option>
-            <option value="LEC">LEC</option>
-            <option value="SAI">SAI</option>
-            <option value="NOR">NOR</option>
-            <option value="PIA">PIA</option>
-            <option value="ALO">ALO</option>
-            <option value="STR">STR</option>
+            {% for driver in drivers %}
+                <option value="{{ driver.code }}">{{ driver.code }} ({{ driver.name }})</option>
+            {% endfor %}
         </select>
     </div>
 
@@ -83,16 +51,9 @@
         <label for="p5">P5</label>
         <select id="p5" name="p5" required>
             <option value="">-- Select Driver --</option>
-            <option value="VER">VER</option>
-            <option value="PER">PER</option>
-            <option value="ANT">ANT</option>
-            <option value="RUS">RUS</option>
-            <option value="LEC">LEC</option>
-            <option value="SAI">SAI</option>
-            <option value="NOR">NOR</option>
-            <option value="PIA">PIA</option>
-            <option value="ALO">ALO</option>
-            <option value="STR">STR</option>
+            {% for driver in drivers %}
+                <option value="{{ driver.code }}">{{ driver.code }} ({{ driver.name }})</option>
+            {% endfor %}
         </select>
     </div>
 

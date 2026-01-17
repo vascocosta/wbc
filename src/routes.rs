@@ -11,8 +11,11 @@ use rocket::{
 };
 use rocket_dyn_templates::{Template, context};
 
-use crate::models::{Registration, User};
 use crate::store::UserStore;
+use crate::{
+    models::{Registration, User},
+    store::DriverStore,
+};
 
 #[get("/")]
 pub async fn index() -> Template {
@@ -20,8 +23,11 @@ pub async fn index() -> Template {
 }
 
 #[get("/bet")]
-pub async fn bet(_user: User) -> Template {
-    Template::render("bet", context! {})
+pub async fn bet(_user: User, db: &State<Mutex<Database<&str>>>) -> Template {
+    let driver_store = DriverStore::new(db);
+    let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
+
+    Template::render("bet", context! { drivers })
 }
 
 #[get("/login")]
