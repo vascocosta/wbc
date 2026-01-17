@@ -37,11 +37,11 @@ pub async fn login_submit(
     cookies: &CookieJar<'_>,
     db: &State<Mutex<Database<&str>>>,
     form_data: Form<Registration>,
-) -> Template {
+) -> Result<Redirect, Template> {
     let user_store = UserStore::new(db);
     let registration = form_data.into_inner();
 
-    let error = match user_store
+    match user_store
         .validate_user(&registration.username, &registration.password)
         .await
     {
@@ -55,12 +55,13 @@ pub async fn login_submit(
 
             cookies.add(cookie);
 
-            "Login successful."
+            Ok(Redirect::to(uri! { bet }))
         }
-        None => "Login failed.",
-    };
-
-    return Template::render("login", context! { error });
+        None => Err(Template::render(
+            "login",
+            context! { error: "Login failed." },
+        )),
+    }
 }
 
 #[get("/logout")]
