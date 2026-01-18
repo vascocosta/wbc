@@ -1,4 +1,4 @@
-use csv_db::Database;
+use csv_db::{Database, DbError};
 use rocket::{
     State,
     form::Form,
@@ -11,9 +11,9 @@ use rocket::{
 };
 use rocket_dyn_templates::{Template, context};
 
-use crate::store::UserStore;
+use crate::store::{BetStore, UserStore};
 use crate::{
-    models::{Registration, User},
+    models::{Bet, Registration, User},
     store::DriverStore,
 };
 
@@ -23,11 +23,67 @@ pub async fn index() -> Template {
 }
 
 #[get("/bet")]
-pub async fn bet(_user: User, db: &State<Mutex<Database<&str>>>) -> Template {
+pub async fn bet_form(user: User, db: &State<Mutex<Database<&str>>>) -> Result<Template, Template> {
     let driver_store = DriverStore::new(db);
+    let bet_store = BetStore::new(db);
     let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
+    let current_race = "Australian GP";
+    let bets = bet_store
+        .get_bet(&user.username, current_race)
+        .await
+        .map_err(|_| {
+            Template::render(
+                "bet",
+                context! { drivers: drivers.clone(), bet: Bet::default(), error: "Could not get your bet."},
+            )
+        })?;
+    let bet = bets.first().ok_or_else(|| {
+        let bet = Bet {
+            race: current_race.to_string(),
+            username: user.username.clone(),
+            ..Default::default()
+        };
+        Template::render(
+            "bet",
+            context! { drivers: drivers.clone(), bet, error: "Could not get your bet."},
+        )
+    })?;
 
-    Template::render("bet", context! { drivers })
+    Ok(Template::render("bet", context! { drivers, bet }))
+}
+
+#[post("/bet", data = "<form_data>")]
+pub async fn bet_submit(
+    db: &State<Mutex<Database<&str>>>,
+    form_data: Form<Bet>,
+) -> Result<Template, Template> {
+    let driver_store = DriverStore::new(db);
+    let bet_store = BetStore::new(db);
+    let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
+    let bet = form_data.into_inner();
+
+    match bet_store.update_bet(bet.clone()).await {
+        Ok(_) => Ok(Template::render(
+            "bet",
+            context! { drivers, bet, error: "Your bet was successfully updated." },
+        )),
+        Err(e) => match e {
+            DbError::NoMatch => match bet_store.add_bet(bet.clone()).await {
+                Ok(_) => Ok(Template::render(
+                    "bet",
+                    context! { drivers, bet, error: "Your bet was successfully updated." },
+                )),
+                Err(_) => Err(Template::render(
+                    "bet",
+                    context! { drivers, bet, error: "Problem updating bet." },
+                )),
+            },
+            _ => Err(Template::render(
+                "bet",
+                context! { drivers, bet, error: "Problem updating bet." },
+            )),
+        },
+    }
 }
 
 #[get("/login")]
@@ -61,7 +117,7 @@ pub async fn login_submit(
 
             cookies.add(cookie);
 
-            Ok(Redirect::to(uri! { bet }))
+            Ok(Redirect::to(uri! { bet_form }))
         }
         None => Err(Template::render(
             "login",

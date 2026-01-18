@@ -13,6 +13,17 @@ pub struct Registration {
     pub password: String,
 }
 
+#[derive(Clone, Debug, Default, Deserialize, FromForm, PartialEq, Serialize)]
+pub struct Bet {
+    pub race: String,
+    pub username: String,
+    pub p1: String,
+    pub p2: String,
+    pub p3: String,
+    pub p4: String,
+    pub p5: String,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct User {
     pub token: String,

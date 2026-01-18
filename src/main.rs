@@ -18,7 +18,8 @@ fn rocket() -> _ {
             "/",
             routes![
                 index,
-                bet,
+                bet_form,
+                bet_submit,
                 login_form,
                 login_submit,
                 logout,

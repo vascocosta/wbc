@@ -5,14 +5,22 @@
 {% block content %}
 <h1>Place Bet</h1>
 
+{% if error %}
+    <div class="message error">{{ error }}</div>
+{% endif %}
+
 <form action="/bet" method="post">
+
+    <input type="hidden" name="race" value="{{ bet.race }}">
+    <input type="hidden" name="username" value={{ bet.username }}>
 
     <div>
         <label for="p1">P1</label>
         <select id="p1" name="p1" required>
-            <option value="">-- Select Driver --</option>
             {% for driver in drivers %}
-                <option value="{{ driver.code }}">{{ driver.code }} ({{ driver.name }})</option>
+                <option value="{{ driver.code }}" {% if driver.code == bet.p1 %}selected{% endif %}>
+                    {{ driver.code }}
+                </option>
             {% endfor %}
         </select>
     </div>
@@ -20,9 +28,10 @@
     <div>
         <label for="p2">P2</label>
         <select id="p2" name="p2" required>
-            <option value="">-- Select Driver --</option>
             {% for driver in drivers %}
-                <option value="{{ driver.code }}">{{ driver.code }} ({{ driver.name }})</option>
+                <option value="{{ driver.code }}" {% if driver.code == bet.p2 %}selected{% endif %}>
+                    {{ driver.code }}
+                </option>
             {% endfor %}
         </select>
     </div>
@@ -30,9 +39,10 @@
     <div>
         <label for="p3">P3</label>
         <select id="p3" name="p3" required>
-            <option value="">-- Select Driver --</option>
             {% for driver in drivers %}
-                <option value="{{ driver.code }}">{{ driver.code }} ({{ driver.name }})</option>
+                <option value="{{ driver.code }}" {% if driver.code == bet.p3 %}selected{% endif %}>
+                    {{ driver.code }}
+                </option>
             {% endfor %}
         </select>
     </div>
@@ -40,9 +50,10 @@
     <div>
         <label for="p4">P4</label>
         <select id="p4" name="p4" required>
-            <option value="">-- Select Driver --</option>
             {% for driver in drivers %}
-                <option value="{{ driver.code }}">{{ driver.code }} ({{ driver.name }})</option>
+                <option value="{{ driver.code }}" {% if driver.code == bet.p4 %}selected{% endif %}>
+                    {{ driver.code }}
+                </option>
             {% endfor %}
         </select>
     </div>
@@ -50,13 +61,14 @@
     <div>
         <label for="p5">P5</label>
         <select id="p5" name="p5" required>
-            <option value="">-- Select Driver --</option>
             {% for driver in drivers %}
-                <option value="{{ driver.code }}">{{ driver.code }} ({{ driver.name }})</option>
+                <option value="{{ driver.code }}" {% if driver.code == bet.p5 %}selected{% endif %}>
+                    {{ driver.code }}
+                </option>
             {% endfor %}
         </select>
     </div>
 
-    <button type="submit">Submit</button>
+    <button type="submit">Update Bet</button>
 </form>
 {% endblock content %}

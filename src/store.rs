@@ -6,7 +6,7 @@ use csv_db::{Database, DbError};
 use rocket::{State, tokio::sync::Mutex};
 use uuid::Uuid;
 
-use crate::models::{Driver, User};
+use crate::models::{Bet, Driver, User};
 
 pub struct UserStore<'a> {
     db: &'a State<Mutex<Database<&'static str>>>,
@@ -95,5 +95,42 @@ impl<'a> DriverStore<'a> {
 
     pub async fn all_drivers(&self) -> Result<Vec<Driver>, DbError> {
         self.db.lock().await.find("drivers", |_| true).await
+    }
+}
+
+pub struct BetStore<'a> {
+    db: &'a State<Mutex<Database<&'static str>>>,
+}
+
+impl<'a> BetStore<'a> {
+    pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
+        Self { db }
+    }
+
+    pub async fn get_bet(&self, username: &str, race: &str) -> Result<Vec<Bet>, DbError> {
+        self.db
+            .lock()
+            .await
+            .find("bets", |b: &Bet| {
+                b.username.to_lowercase() == username.to_ascii_lowercase()
+                    && b.race.to_lowercase() == race.to_lowercase()
+            })
+            .await
+    }
+
+    pub async fn add_bet(&self, bet: Bet) -> Result<(), DbError> {
+        self.db.lock().await.insert("bets", bet).await
+    }
+
+    pub async fn update_bet(&self, bet: Bet) -> Result<(), DbError> {
+        let username = bet.username.to_lowercase();
+
+        self.db
+            .lock()
+            .await
+            .update("bets", bet, |b: &&Bet| {
+                b.username.to_lowercase() == username
+            })
+            .await
     }
 }
