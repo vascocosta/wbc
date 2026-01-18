@@ -5,11 +5,9 @@
 {% block content %}
 <h1>Place Bet</h1>
 
-{% if error %}
-    <div class="message error">{{ error }}</div>
-{% endif %}
+<div class="message error" id="message">{% if error %} {{ error }} {% endif %}</div>
 
-<form action="/bet" method="post">
+<form action="/bet" method="post" onsubmit="return validateBet();">
 
     <input type="hidden" name="race" value="{{ bet.race }}">
     <input type="hidden" name="username" value={{ bet.username }}>
@@ -71,4 +69,21 @@
 
     <button type="submit">Update Bet</button>
 </form>
+
+<script>
+function validateBet() {
+    const elements = ['p1', 'p2', 'p3', 'p4', 'p5'];
+    const drivers = elements.map(id => document.getElementById(id).value);
+    const uniqueDrivers = new Set(drivers);
+
+    if (uniqueDrivers.size !== elements.length) {
+        document.getElementById('message').innerHTML = 'Please make sure you have 5 unique drivers!';
+
+        return false;
+    }
+
+    return true;
+}
+</script>
+
 {% endblock content %}
