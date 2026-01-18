@@ -18,12 +18,19 @@ use crate::{
 };
 
 #[get("/")]
-pub async fn index() -> Template {
-    Template::render("index", context! {})
+pub async fn index(cookies: &CookieJar<'_>) -> Template {
+    let logged_in = cookies.get("session").is_some();
+
+    Template::render("index", context! { logged_in })
 }
 
 #[get("/bet")]
-pub async fn bet_form(user: User, db: &State<Mutex<Database<&str>>>) -> Result<Template, Template> {
+pub async fn bet_form(
+    cookies: &CookieJar<'_>,
+    user: User,
+    db: &State<Mutex<Database<&str>>>,
+) -> Result<Template, Template> {
+    let logged_in = cookies.get("session").is_some();
     let driver_store = DriverStore::new(db);
     let bet_store = BetStore::new(db);
     let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
@@ -34,7 +41,7 @@ pub async fn bet_form(user: User, db: &State<Mutex<Database<&str>>>) -> Result<T
         .map_err(|_| {
             Template::render(
                 "bet",
-                context! { drivers: drivers.clone(), bet: Bet::default(), error: "Could not get your bet."},
+                context! { drivers: drivers.clone(), bet: Bet::default(), error: "Could not get your bet.", logged_in },
             )
         })?;
     let bet = bets.first().ok_or_else(|| {
@@ -45,18 +52,23 @@ pub async fn bet_form(user: User, db: &State<Mutex<Database<&str>>>) -> Result<T
         };
         Template::render(
             "bet",
-            context! { drivers: drivers.clone(), bet, error: "Could not get your bet."},
+            context! { drivers: drivers.clone(), bet, error: "Could not get your bet.", logged_in },
         )
     })?;
 
-    Ok(Template::render("bet", context! { drivers, bet }))
+    Ok(Template::render(
+        "bet",
+        context! { drivers, bet, logged_in },
+    ))
 }
 
 #[post("/bet", data = "<form_data>")]
 pub async fn bet_submit(
+    cookies: &CookieJar<'_>,
     db: &State<Mutex<Database<&str>>>,
     form_data: Form<Bet>,
 ) -> Result<Template, Template> {
+    let logged_in = cookies.get("session").is_some();
     let driver_store = DriverStore::new(db);
     let bet_store = BetStore::new(db);
     let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
@@ -65,22 +77,22 @@ pub async fn bet_submit(
     match bet_store.update_bet(bet.clone()).await {
         Ok(_) => Ok(Template::render(
             "bet",
-            context! { drivers, bet, error: "Your bet was successfully updated." },
+            context! { drivers, bet, error: "Your bet was successfully updated.", logged_in },
         )),
         Err(e) => match e {
             DbError::NoMatch => match bet_store.add_bet(bet.clone()).await {
                 Ok(_) => Ok(Template::render(
                     "bet",
-                    context! { drivers, bet, error: "Your bet was successfully updated." },
+                    context! { drivers, bet, error: "Your bet was successfully updated.", logged_in },
                 )),
                 Err(_) => Err(Template::render(
                     "bet",
-                    context! { drivers, bet, error: "Problem updating bet." },
+                    context! { drivers, bet, error: "Problem updating bet.", logged_in },
                 )),
             },
             _ => Err(Template::render(
                 "bet",
-                context! { drivers, bet, error: "Problem updating bet." },
+                context! { drivers, bet, error: "Problem updating bet.", logged_in },
             )),
         },
     }
