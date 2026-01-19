@@ -18,7 +18,7 @@ body {
 /* Main container for all pages */
 .container {
     width: 100%;
-    max-width: 420px;
+    max-width: 520px;
     background: #ffffff;
     padding: 2rem;
     border-radius: 8px;
@@ -50,7 +50,7 @@ input,
 select {
     width: 100%;
     padding: 0.6rem 0.7rem;
-    font-size: 1rem;
+    font-size: 1.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
