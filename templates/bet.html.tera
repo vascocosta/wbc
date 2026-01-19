@@ -3,7 +3,7 @@
 {% block title %}Bet{% endblock title %}
 
 {% block content %}
-<h1>Place Bet</h1>
+<h1>{{ current_race }}</h1>
 
 <div class="message error" id="message">{% if error %} {{ error }} {% endif %}</div>
 

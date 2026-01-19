@@ -6,7 +6,10 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.100"
 argon2 = "0.5.3"
+chrono = { version = "0.4.43", features = ["serde"] }
+chrono-tz = "0.10.4"
 csv_db = { path = "../csv_db" }
+itertools = "0.14.0"
 rocket = "0.5.1"
 rocket_dyn_templates = { version = "0.2.0", features = ["tera"] }
 serde = { version = "1.0.228", features = ["derive"] }

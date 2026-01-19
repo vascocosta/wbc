@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use csv_db::Database;
 use rocket::{
     Request, State,
@@ -69,4 +70,15 @@ pub struct Driver {
     pub number: u8,
     pub code: String,
     pub name: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Event {
+    pub category: String,
+    pub name: String,
+    pub description: String,
+    pub datetime: DateTime<Utc>,
+    pub channel: String,
+    tags: String,
+    notify: bool,
 }

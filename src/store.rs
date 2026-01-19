@@ -2,11 +2,15 @@ use argon2::{
     Argon2, PasswordHasher,
     password_hash::{PasswordHash, PasswordVerifier, SaltString, rand_core::OsRng},
 };
+use chrono::Utc;
 use csv_db::{Database, DbError};
+use itertools::Itertools;
 use rocket::{State, tokio::sync::Mutex};
 use uuid::Uuid;
 
-use crate::models::{Bet, Driver, User};
+use crate::models::{Bet, Driver, Event, User};
+
+const CHANNEL: &str = "#formula1";
 
 pub struct UserStore<'a> {
     db: &'a State<Mutex<Database<&'static str>>>,
@@ -122,15 +126,42 @@ impl<'a> BetStore<'a> {
         self.db.lock().await.insert("bets", bet).await
     }
 
-    pub async fn update_bet(&self, bet: Bet) -> Result<(), DbError> {
+    pub async fn update_bet(&self, bet: Bet, current_race: &str) -> Result<(), DbError> {
         let username = bet.username.to_lowercase();
 
         self.db
             .lock()
             .await
             .update("bets", bet, |b: &&Bet| {
-                b.username.to_lowercase() == username
+                b.username.to_lowercase() == username && b.race.to_lowercase() == current_race
             })
             .await
+    }
+}
+
+pub struct EventStore<'a> {
+    db: &'a State<Mutex<Database<&'static str>>>,
+}
+
+impl<'a> EventStore<'a> {
+    pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
+        Self { db }
+    }
+
+    pub async fn next_event(&self) -> Result<Event, DbError> {
+        self.db
+            .lock()
+            .await
+            .find("events", |e: &Event| {
+                e.datetime > Utc::now()
+                    && e.channel.to_lowercase() == CHANNEL.to_lowercase()
+                    && e.category.to_lowercase().contains("formula 1")
+                    && e.description.eq_ignore_ascii_case("race")
+            })
+            .await?
+            .into_iter()
+            .sorted_by(|a, b| a.datetime.cmp(&b.datetime))
+            .next()
+            .ok_or(DbError::NoMatch)
     }
 }

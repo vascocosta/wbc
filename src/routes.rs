@@ -11,7 +11,7 @@ use rocket::{
 };
 use rocket_dyn_templates::{Template, context};
 
-use crate::store::{BetStore, UserStore};
+use crate::store::{BetStore, EventStore, UserStore};
 use crate::{
     models::{Bet, Registration, User},
     store::DriverStore,
@@ -34,16 +34,18 @@ pub async fn bet_form(
 
     let driver_store = DriverStore::new(db);
     let bet_store = BetStore::new(db);
+    let event_store = EventStore::new(db);
 
     let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
-    let current_race = "Australian GP";
+    // Remove naked unwrap().
+    let current_race = &event_store.next_event().await.unwrap().name;
 
     let bets = match bet_store.get_bet(&user.username, current_race).await {
         Ok(bets) => bets,
         Err(_) => {
             return Err(Template::render(
                 "bet",
-                context! { drivers: drivers, bet: Bet::default(), error: "Could not get your bet.", logged_in },
+                context! { current_race, drivers: drivers, bet: Bet::default(), error: "Could not get your bet.", logged_in },
             ));
         }
     };
@@ -55,7 +57,7 @@ pub async fn bet_form(
 
     Ok(Template::render(
         "bet",
-        context! { drivers, bet, logged_in },
+        context! { current_race, drivers, bet, logged_in },
     ))
 }
 
@@ -66,30 +68,36 @@ pub async fn bet_submit(
     form_data: Form<Bet>,
 ) -> Result<Template, Template> {
     let logged_in = cookies.get("session").is_some();
+
     let driver_store = DriverStore::new(db);
     let bet_store = BetStore::new(db);
+    let event_store = EventStore::new(db);
+
     let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
+    // Remove naked unwrap().
+    let current_race = &event_store.next_event().await.unwrap().name;
+
     let bet = form_data.into_inner();
 
-    match bet_store.update_bet(bet.clone()).await {
+    match bet_store.update_bet(bet.clone(), current_race).await {
         Ok(_) => Ok(Template::render(
             "bet",
-            context! { drivers, bet, error: "Your bet was successfully updated.", logged_in },
+            context! { current_race, drivers, bet, error: "Your bet was successfully updated.", logged_in },
         )),
         Err(e) => match e {
             DbError::NoMatch => match bet_store.add_bet(bet.clone()).await {
                 Ok(_) => Ok(Template::render(
                     "bet",
-                    context! { drivers, bet, error: "Your bet was successfully updated.", logged_in },
+                    context! { current_race, drivers, bet, error: "Your bet was successfully updated.", logged_in },
                 )),
                 Err(_) => Err(Template::render(
                     "bet",
-                    context! { drivers, bet, error: "Problem updating bet.", logged_in },
+                    context! { current_race, drivers, bet, error: "Problem updating bet.", logged_in },
                 )),
             },
             _ => Err(Template::render(
                 "bet",
-                context! { drivers, bet, error: "Problem updating bet.", logged_in },
+                context! { current_race, drivers, bet, error: "Problem updating bet.", logged_in },
             )),
         },
     }
