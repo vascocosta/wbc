@@ -31,30 +31,27 @@ pub async fn bet_form(
     db: &State<Mutex<Database<&str>>>,
 ) -> Result<Template, Template> {
     let logged_in = cookies.get("session").is_some();
+
     let driver_store = DriverStore::new(db);
     let bet_store = BetStore::new(db);
+
     let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
     let current_race = "Australian GP";
-    let bets = bet_store
-        .get_bet(&user.username, current_race)
-        .await
-        .map_err(|_| {
-            Template::render(
+
+    let bets = match bet_store.get_bet(&user.username, current_race).await {
+        Ok(bets) => bets,
+        Err(_) => {
+            return Err(Template::render(
                 "bet",
-                context! { drivers: drivers.clone(), bet: Bet::default(), error: "Could not get your bet.", logged_in },
-            )
-        })?;
-    let bet = bets.first().ok_or_else(|| {
-        let bet = Bet {
-            race: current_race.to_string(),
-            username: user.username.clone(),
-            ..Default::default()
-        };
-        Template::render(
-            "bet",
-            context! { drivers: drivers.clone(), bet, error: "Could not get your bet.", logged_in },
-        )
-    })?;
+                context! { drivers: drivers, bet: Bet::default(), error: "Could not get your bet.", logged_in },
+            ));
+        }
+    };
+    let bet = bets.into_iter().next().unwrap_or(Bet {
+        race: current_race.to_string(),
+        username: user.username.clone(),
+        ..Default::default()
+    });
 
     Ok(Template::render(
         "bet",
