@@ -133,7 +133,8 @@ impl<'a> BetStore<'a> {
             .lock()
             .await
             .update("bets", bet, |b: &&Bet| {
-                b.username.to_lowercase() == username && b.race.to_lowercase() == current_race
+                b.username.to_lowercase() == username
+                    && b.race.to_lowercase() == current_race.to_lowercase()
             })
             .await
     }
