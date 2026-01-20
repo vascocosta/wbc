@@ -317,7 +317,9 @@ dependencies = [
 
 [[package]]
 name = "csv_db"
-version = "0.3.0"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bc41b2102d59651b472d6c516c7eed5c1307797eb5e7c1888441f5a25737736"
 dependencies = [
  "csv",
  "serde",
