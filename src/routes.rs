@@ -37,8 +37,11 @@ pub async fn bet_form(
     let event_store = EventStore::new(db);
 
     let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
-    // Remove naked unwrap().
-    let current_race = &event_store.next_event().await.unwrap().name;
+    let current_race = &event_store
+        .next_event()
+        .await
+        .expect("The next event should be available on the database")
+        .name;
 
     let bets = match bet_store.get_bet(&user.username, current_race).await {
         Ok(bets) => bets,
@@ -74,8 +77,11 @@ pub async fn bet_submit(
     let event_store = EventStore::new(db);
 
     let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
-    // Remove naked unwrap().
-    let current_race = &event_store.next_event().await.unwrap().name;
+    let current_race = &event_store
+        .next_event()
+        .await
+        .expect("The next event should be available on the database")
+        .name;
 
     let bet = form_data.into_inner();
 
