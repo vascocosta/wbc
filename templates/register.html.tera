@@ -3,10 +3,11 @@
 {% block title %}Register{% endblock title %}
 
 {% block content %}
+<div class="form-wrapper">
     <h1>Register</h1>
 
     {% if error %}
-        <p style="color: red;">{{ error }}</p>
+        <div class="message error">{{ error }}</div>
     {% endif %}
 
     <form action="/register" method="post">
@@ -26,4 +27,5 @@
 
         <button type="submit">Register</button>
     </form>
+</div>
 {% endblock content%}

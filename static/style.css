@@ -1,150 +1,172 @@
-/* Reset and base styles */
+:root {
+    --primary: #e10600;
+    --dark: #15151e;
+    --light: #f3f3f3;
+    --medium: #dddddd;
+    --white: #ffffff;
+    --error: #ff3b30;
+    --border-radius: 12px;
+}
+
 * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
 }
 
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #666666;
-    color: #333;
-    min-height: 100vh;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background-color: var(--medium);
+    color: var(--dark);
+    line-height: 1.6;
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: var(--dark);
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+
+.navbar-inner {
+    max-width: 1000px;
+    margin: 0 auto;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
+    padding: 0 20px;
 }
 
-/* Main container for all pages */
+.navbar a {
+    color: var(--white);
+    text-decoration: none;
+    margin-left: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.navbar a:hover {
+    color: var(--primary);
+}
+
+/* Content Layout */
 .container {
-    width: 100%;
-    max-width: 520px;
-    background: #ffffff;
-    padding: 2rem;
-    border-radius: 8px;
-    /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); */
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-/* Headers */
-h1 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-    color: #111;
-}
-
-/* Form layout */
-form {
+/* Form Wrapper */
+.form-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    /* Stack H1 and Form vertically */
+    align-items: center;
+    /* Center them horizontally */
+    justify-content: center;
+    /* Center them vertically */
+    min-height: 70vh;
+    /* Use more vertical space */
+    width: 100%;
+    margin: 0 auto;
 }
 
+.form-wrapper h1 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Form Card Styling */
+form {
+    background: var(--white);
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 450px;
+    /* Slightly wider for better balance */
+    border: 2px solid #eeeeee;
+
+    /* Ensure the form itself doesn't have alignment-breaking margins */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Adjusting the Bet form to be wider than Login/Register */
+form[action="/bet"] {
+    max-width: 550px;
+}
+
+h1 {
+    text-align: center;
+    color: var(--dark);
+}
+
+/* Form Elements */
 label {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
     display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
 }
 
 input,
 select {
     width: 100%;
-    padding: 0.6rem 0.7rem;
-    font-size: 1.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 2px solid #eeeeee;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    background-color: #fafafa;
 }
 
 input:focus,
 select:focus {
     outline: none;
-    border-color: #0077cc;
+    border-color: var(--primary);
 }
 
-/* Buttons */
 button {
-    margin-top: 1rem;
-    padding: 0.7rem;
-    font-size: 1rem;
-    font-weight: 600;
-    background: #0077cc;
-    color: #ffffff;
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary);
+    color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
 button:hover {
-    background: #005fa3;
+    background-color: #b00500;
 }
 
-/* Messages (errors, flash messages, etc.) */
+/* Messages */
 .message {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
     text-align: center;
-    font-size: 0.95rem;
-    padding: 0.6rem;
-    border-radius: 4px;
+    font-weight: bold;
 }
 
-.message.error {
-    color: #b00020;
+.error {
+    background-color: #ffe5e5;
+    color: var(--error);
+    border: 1px solid var(--error);
 }
 
-.message.info {
-    background: #e7f2ff;
-    color: #004a99;
+.info {
+    background-color: #e5f4ff;
+    color: #007aff;
+    border: 1px solid #007aff;
 }
 
-/* Utility spacing */
-.spacer {
-    height: 0.5rem;
-}
-
-/* Small screens */
-@media (max-width: 480px) {
-    .container {
-        margin: 1rem;
-        padding: 1.5rem;
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .navbar-inner {
+        flex-direction: column;
+        gap: 10px;
     }
-
-    h1 {
-        font-size: 1.5rem;
-    }
-}
-
-/* Navigation bar */
-.navbar {
-    width: 100%;
-    background: #333;
-    padding: 0.75rem 1rem;
-    position: fixed;
-    top: 0;
-    left: 0;
-}
-
-.navbar-inner {
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.navbar a {
-    color: #ffffff;
-    text-decoration: none;
-    font-weight: 600;
-    margin-left: 1rem;
-}
-
-.navbar a:hover {
-    text-decoration: underline;
-}
-
-/* Push page content below the fixed navbar */
-.page {
-    width: 100%;
-    padding-top: 4rem;
-    display: flex;
-    justify-content: center;
 }
