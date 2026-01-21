@@ -37,28 +37,28 @@ pub async fn bet_form(
     let event_store = EventStore::new(db);
 
     let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
-    let current_race = &event_store
+    let current_event = &event_store
         .next_event()
         .await
         .expect("The next event should be available on the database")
         .name;
 
-    let bets = match bet_store.get_bet(&user.username, current_race).await {
+    let bets = match bet_store.get_bet(&user.username, current_event).await {
         Ok(bets) => bets,
         Err(_) => {
             return Template::render(
                 "bet",
-                context! { current_race, drivers: drivers, bet: Bet::default(), error: "Could not get your bet.", logged_in },
+                context! { current_event, drivers: drivers, bet: Bet::default(), error: "Could not get your bet.", logged_in },
             );
         }
     };
     let bet = bets.into_iter().next().unwrap_or(Bet {
-        race: current_race.to_string(),
+        race: current_event.to_string(),
         username: user.username.clone(),
         ..Default::default()
     });
 
-    Template::render("bet", context! { current_race, drivers, bet, logged_in })
+    Template::render("bet", context! { current_event, drivers, bet, logged_in })
 }
 
 #[post("/bet", data = "<form_data>")]
