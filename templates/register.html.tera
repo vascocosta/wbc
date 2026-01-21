@@ -6,10 +6,6 @@
 <div class="form-wrapper">
     <h1>Register</h1>
 
-    {% if success %}
-        <div class="message info">{{ success }}</div>
-    {% endif %}
-
     {% if error %}
         <div class="message error">{{ error }}</div>
     {% endif %}

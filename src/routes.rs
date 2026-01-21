@@ -162,29 +162,39 @@ pub async fn register_submit(
     _cookies: &CookieJar<'_>,
     db: &State<Mutex<Database<&str>>>,
     form_data: Form<Registration>,
-) -> Template {
+) -> Result<Flash<Redirect>, Template> {
     let user_store = UserStore::new(db);
     let registration = form_data.into_inner();
 
-    let (success, error) = match user_store.user_exists(&registration.username).await {
+    match user_store.user_exists(&registration.username).await {
         Ok(exists) => {
             if exists {
-                ("", "Username already exists.")
+                Err(Template::render(
+                    "register",
+                    context! { error: "Username already exists." },
+                ))
             } else {
                 // Username does not exist. Insert user into the database.
                 match user_store
                     .add_user(&registration.username, &registration.password)
                     .await
                 {
-                    Ok(_) => ("Registration successful.", ""),
-                    Err(_) => ("", "Registation failed."),
+                    Ok(_) => Ok(Flash::success(
+                        Redirect::to(uri!(login_form)),
+                        "Registration successful. You can now login.",
+                    )),
+                    Err(_) => Err(Template::render(
+                        "register",
+                        context! { error: "Registration failed." },
+                    )),
                 }
             }
         }
-        Err(_) => ("", "Database error."),
-    };
-
-    Template::render("register", context! { success, error })
+        Err(_) => Err(Template::render(
+            "register",
+            context! { error: "Error accessing database." },
+        )),
+    }
 }
 
 #[catch(401)]
