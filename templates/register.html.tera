@@ -5,12 +5,12 @@
 {% block content %}
 <div class="form-wrapper">
     <h1>Register</h1>
+    
+    <div id="message" class="{% if error %}message error{% endif %}">
+        {% if error %} {{ error }} {% endif %}
+    </div>
 
-    {% if error %}
-        <div class="message error">{{ error }}</div>
-    {% endif %}
-
-    <form action="/register" method="post">
+    <form action="/register" method="post" onsubmit="return validateRegistration();">
         <div>
             <label for="username">Username</label><br>
             <input type="text" id="username" name="username" required>
@@ -28,4 +28,19 @@
         <button type="submit">Register</button>
     </form>
 </div>
+
+<script>
+function validateRegistration() {
+    const passLength = document.getElementById('password').value.length;
+
+    if (passLength < 6) {
+        document.getElementById("message").className = "message error";
+        document.getElementById('message').innerHTML = 'Your password must be at least 6 characters long.';
+
+        return false;
+    }
+
+    return true;
+}
+</script>
 {% endblock content%}
