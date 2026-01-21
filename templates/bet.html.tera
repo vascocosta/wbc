@@ -6,6 +6,7 @@
 <div class="form-wrapper">
     <h1>{{ current_race }}</h1>
 
+    {% if success %}<div class="message info" id="message">{{ success }}</div>{% endif %}
     {% if error %}<div class="message error" id="message">{{ error }}</div>{% endif %}
 
     <form action="/bet" method="post" onsubmit="return validateBet();">
@@ -80,6 +81,7 @@ function validateBet() {
     const uniqueDrivers = new Set(drivers);
 
     if (uniqueDrivers.size !== elements.length) {
+        document.getElementById("message").className = "message error";
         document.getElementById('message').innerHTML = 'Please make sure you have 5 unique drivers!';
 
         return false;

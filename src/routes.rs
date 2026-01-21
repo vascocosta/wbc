@@ -88,13 +88,13 @@ pub async fn bet_submit(
     match bet_store.update_bet(bet.clone(), current_race).await {
         Ok(_) => Ok(Template::render(
             "bet",
-            context! { current_race, drivers, bet, error: "Your bet was successfully updated.", logged_in },
+            context! { current_race, drivers, bet, success: "Your bet was successfully updated.", logged_in },
         )),
         Err(e) => match e {
             DbError::NoMatch => match bet_store.add_bet(bet.clone()).await {
                 Ok(_) => Ok(Template::render(
                     "bet",
-                    context! { current_race, drivers, bet, error: "Your bet was successfully updated.", logged_in },
+                    context! { current_race, drivers, bet, success: "Your bet was successfully updated.", logged_in },
                 )),
                 Err(_) => Err(Template::render(
                     "bet",
@@ -169,25 +169,25 @@ pub async fn register_submit(
     let user_store = UserStore::new(db);
     let registration = form_data.into_inner();
 
-    let error = match user_store.user_exists(&registration.username).await {
+    let (success, error) = match user_store.user_exists(&registration.username).await {
         Ok(exists) => {
             if exists {
-                "Username already exists."
+                ("", "Username already exists.")
             } else {
                 // Username does not exist. Insert user into the database.
                 match user_store
                     .add_user(&registration.username, &registration.password)
                     .await
                 {
-                    Ok(_) => "Registration successful.",
-                    Err(_) => "Registation failed.",
+                    Ok(_) => ("Registration successful.", ""),
+                    Err(_) => ("", "Registation failed."),
                 }
             }
         }
-        Err(_) => "Database error.",
+        Err(_) => ("", "Database error."),
     };
 
-    Template::render("register", context! { error })
+    Template::render("register", context! { success, error })
 }
 
 #[catch(401)]
