@@ -29,7 +29,7 @@ pub async fn bet_form(
     cookies: &CookieJar<'_>,
     user: User,
     db: &State<Mutex<Database<&str>>>,
-) -> Result<Template, Template> {
+) -> Template {
     let logged_in = cookies.get("session").is_some();
 
     let driver_store = DriverStore::new(db);
@@ -46,10 +46,10 @@ pub async fn bet_form(
     let bets = match bet_store.get_bet(&user.username, current_race).await {
         Ok(bets) => bets,
         Err(_) => {
-            return Err(Template::render(
+            return Template::render(
                 "bet",
                 context! { current_race, drivers: drivers, bet: Bet::default(), error: "Could not get your bet.", logged_in },
-            ));
+            );
         }
     };
     let bet = bets.into_iter().next().unwrap_or(Bet {
@@ -58,10 +58,7 @@ pub async fn bet_form(
         ..Default::default()
     });
 
-    Ok(Template::render(
-        "bet",
-        context! { current_race, drivers, bet, logged_in },
-    ))
+    Template::render("bet", context! { current_race, drivers, bet, logged_in })
 }
 
 #[post("/bet", data = "<form_data>")]
@@ -69,7 +66,7 @@ pub async fn bet_submit(
     cookies: &CookieJar<'_>,
     db: &State<Mutex<Database<&str>>>,
     form_data: Form<Bet>,
-) -> Result<Template, Template> {
+) -> Template {
     let logged_in = cookies.get("session").is_some();
 
     let driver_store = DriverStore::new(db);
@@ -86,25 +83,25 @@ pub async fn bet_submit(
     let bet = form_data.into_inner();
 
     match bet_store.update_bet(bet.clone(), current_race).await {
-        Ok(_) => Ok(Template::render(
+        Ok(_) => Template::render(
             "bet",
             context! { current_race, drivers, bet, success: "Your bet was successfully updated.", logged_in },
-        )),
+        ),
         Err(e) => match e {
             DbError::NoMatch => match bet_store.add_bet(bet.clone()).await {
-                Ok(_) => Ok(Template::render(
+                Ok(_) => Template::render(
                     "bet",
                     context! { current_race, drivers, bet, success: "Your bet was successfully updated.", logged_in },
-                )),
-                Err(_) => Err(Template::render(
+                ),
+                Err(_) => Template::render(
                     "bet",
                     context! { current_race, drivers, bet, error: "Problem updating bet.", logged_in },
-                )),
+                ),
             },
-            _ => Err(Template::render(
+            _ => Template::render(
                 "bet",
                 context! { current_race, drivers, bet, error: "Problem updating bet.", logged_in },
-            )),
+            ),
         },
     }
 }
