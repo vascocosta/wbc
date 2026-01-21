@@ -6,8 +6,10 @@
 <div class="form-wrapper">
     <h1>{{ current_race }}</h1>
 
-    {% if success %}<div class="message info" id="message">{{ success }}</div>{% endif %}
-    {% if error %}<div class="message error" id="message">{{ error }}</div>{% endif %}
+    <div id="message" class="{% if success %}message info{% endif %}{% if error %}message error{% endif %}">
+        {% if success %} {{ success }} {% endif %}
+        {% if error %} {{ error }} {% endif %}
+    </div>
 
     <form action="/bet" method="post" onsubmit="return validateBet();">
 
