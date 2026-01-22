@@ -5,6 +5,6 @@
 {% block content %}
 <h1>Welcome to the WBC</h1>
 
-<p>Become the new world champion of the WBC!</p>
-<p>Place your bet for the top 5 positions every F1 race and earn some points.</p>
+<h2>Next race</h2>
+<p>{% if current_race %}{{current_race}}{% endif %}</p>
 {% endblock content %}
