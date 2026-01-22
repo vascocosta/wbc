@@ -74,7 +74,7 @@ pub async fn bet_submit(
     let event_store = EventStore::new(db);
 
     let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
-    let current_race = &event_store
+    let current_event = &event_store
         .next_event()
         .await
         .expect("The next event should be available on the database")
@@ -82,25 +82,25 @@ pub async fn bet_submit(
 
     let bet = form_data.into_inner();
 
-    match bet_store.update_bet(bet.clone(), current_race).await {
+    match bet_store.update_bet(bet.clone(), current_event).await {
         Ok(_) => Template::render(
             "bet",
-            context! { current_race, drivers, bet, success: "Your bet was successfully updated.", logged_in },
+            context! { current_event, drivers, bet, success: "Your bet was successfully updated.", logged_in },
         ),
         Err(e) => match e {
             DbError::NoMatch => match bet_store.add_bet(bet.clone()).await {
                 Ok(_) => Template::render(
                     "bet",
-                    context! { current_race, drivers, bet, success: "Your bet was successfully updated.", logged_in },
+                    context! { current_event, drivers, bet, success: "Your bet was successfully updated.", logged_in },
                 ),
                 Err(_) => Template::render(
                     "bet",
-                    context! { current_race, drivers, bet, error: "Problem updating bet.", logged_in },
+                    context! { current_event, drivers, bet, error: "Problem updating bet.", logged_in },
                 ),
             },
             _ => Template::render(
                 "bet",
-                context! { current_race, drivers, bet, error: "Problem updating bet.", logged_in },
+                context! { current_event, drivers, bet, error: "Problem updating bet.", logged_in },
             ),
         },
     }
