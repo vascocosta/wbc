@@ -3,8 +3,55 @@
 {% block title %}WBC{% endblock title %}
 
 {% block content %}
-<h1>Welcome to the WBC</h1>
+<div class="wide">
 
-<h2>Next race</h2>
-<p>{% if current_race %}{{current_race}}{% endif %}</p>
+    <div class="hero">
+        <h1>Welcome to the WBC</h1>
+        <p>
+            Become the new world champion.
+            Predict the top 5 finishers of every F1 race and earn points.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Current Event</h2>
+
+        {% if current_event %}
+            <div class="event-card">
+
+                <div class="event-info">
+                    <p class="event-name">{{ current_event.name }}</p>
+                    <p class="event-category"><strong>{{ current_event.category }}</strong></p>
+                    <p class="event-meta">{{ current_event.datetime }}</p>
+                    <p class="event-deadline">Bet closes in about: <strong>2 hours, 23 min, 2 secs</strong></p>
+                </div>
+
+                <div class="event-actions">
+                    <a href="/log" class="btn">SHOW LOGS</a>
+                    <a href="/bet" class="btn">PLACE BET</a>
+                </div>
+
+            </div>
+        {% else %}
+            <p>No upcoming events available.</p>
+        {% endif %}
+    </div>
+
+    <div class="card leaderboard">
+        <h2>Leaderboard</h2>
+
+        {% if leaderboard %}
+            <ol>
+                {% for entry in leaderboard %}
+                    <li>
+                        {{ entry.username }} — {{ entry.points }} pts
+                    </li>
+                {% endfor %}
+            </ol>
+        {% else %}
+            <p>No standings yet.</p>
+        {% endif %}
+    </div>
+
+</div>
 {% endblock content %}

@@ -1,5 +1,5 @@
 :root {
-    --primary: #e10600;
+    --primary: #004a99;
     --dark: #15151e;
     --light: #f3f3f3;
     --medium: #dddddd;
@@ -139,7 +139,7 @@ button {
 }
 
 button:hover {
-    background-color: #b00500;
+    background-color: #005fa3;
 }
 
 /* Messages */
@@ -169,4 +169,102 @@ button:hover {
         flex-direction: column;
         gap: 10px;
     }
+}
+
+/* Hero section */
+.hero {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+}
+
+.hero h1 {
+    font-size: 2.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+/* Card (reusable, lighter than container) */
+.card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.card h2 {
+    margin-bottom: 0.75rem;
+}
+
+/* Call-to-action button */
+.btn {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    border-radius: 4px;
+    text-decoration: none;
+    background: #0077cc;
+    color: #ffffff;
+}
+
+.btn:hover {
+    background: #005fa3;
+}
+
+/* Event metadata */
+.event-meta {
+    color: #666;
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+}
+
+/* Leaderboard preview */
+.leaderboard {
+    margin-top: 2rem;
+}
+
+.leaderboard ol {
+    margin-left: 1.2rem;
+}
+
+.leaderboard li {
+    margin: 0.3rem 0;
+}
+
+.event-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.event-info p {
+    margin: 0.3rem 0;
+}
+
+.event-actions {
+    text-align: right;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: #e7f2ff;
+    color: #004a99;
+    margin-bottom: 0.5rem;
+}
+
+.event-category {
+    font-size: 1.1rem;
+}
+
+.event-name {
+    font-size: 1.3rem;
+    font-weight: 600;
 }

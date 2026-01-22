@@ -18,10 +18,17 @@ use crate::{
 };
 
 #[get("/")]
-pub async fn index(cookies: &CookieJar<'_>) -> Template {
+pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -> Template {
     let logged_in = cookies.get("session").is_some();
 
-    Template::render("index", context! { logged_in })
+    let event_store = EventStore::new(db);
+
+    let current_event = &event_store
+        .next_event()
+        .await
+        .expect("The next event should be available on the database");
+
+    Template::render("index", context! { logged_in, current_event })
 }
 
 #[get("/bet")]
