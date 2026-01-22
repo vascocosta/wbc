@@ -14,16 +14,14 @@
     </div>
 
     <div class="card">
-        <h2>Current Event</h2>
-
         {% if current_event %}
             <div class="event-card">
 
                 <div class="event-info">
                     <p class="event-name">{{ current_event.name }}</p>
                     <p class="event-category"><strong>{{ current_event.category }}</strong></p>
-                    <p class="event-meta">{{ current_event.datetime }}</p>
-                    <p class="event-deadline">Bet closes in about: <strong>2 hours, 23 min, 2 secs</strong></p>
+                    <p class="event-meta" id="datetime">{{ current_event.datetime }}</p>
+                    <p class="event-deadline" id="delta">Bet deadline: calculating...</p>
                 </div>
 
                 <div class="event-actions">
@@ -54,4 +52,75 @@
     </div>
 
 </div>
+<script>
+const element = document.getElementById("datetime");
+const rawDate = element.textContent.trim();
+
+document.addEventListener("DOMContentLoaded", () => {
+    formatDate(rawDate);
+});
+
+setInterval(() => {
+    const deltaElement = document.getElementById("delta");
+
+    if (!deltaElement) return;
+
+    const targetDate = new Date(rawDate);
+
+    if (isNaN(targetDate)) return;
+
+    deltaElement.innerHTML = `Bet deadline: <strong>${formatDelta(targetDate)}</strong>`;
+}, 1000);
+
+function formatDate(rawDate) {
+    const date = new Date(rawDate);
+
+    if (isNaN(date)) return;
+
+    element.textContent = date.toLocaleString();
+}
+
+function formatDelta(targetDate) {
+    const diffMs = targetDate - Date.now();
+    const future = diffMs > 0;
+
+    let remaining = Math.abs(diffMs);
+
+    const units = [
+        ["day",    86_400_000],
+        ["hour",    3_600_000],
+        ["minute",     60_000],
+        ["second",      1_000]
+    ];
+
+    const pr = new Intl.PluralRules();
+    const nf = new Intl.NumberFormat();
+
+    const unitLabels = {
+        day: { one: "day", other: "days" },
+        hour: { one: "hour", other: "hours" },
+        minute: { one: "minute", other: "minutes" },
+        second: { one: "second", other: "seconds" }
+    };
+
+    const parts = [];
+
+    for (const [unit, ms] of units) {
+        const value = Math.floor(remaining / ms);
+        if (value > 0) {
+            const form = pr.select(value);
+            parts.push(`${nf.format(value)} ${unitLabels[unit][form]}`);
+            remaining %= ms;
+        }
+    }
+
+    if (parts.length === 0) {
+        return "just now";
+    }
+
+    return future
+        ? `in ${parts.join(", ")}`
+        : `${parts.join(", ")} ago`;
+}
+</script>
 {% endblock content %}
