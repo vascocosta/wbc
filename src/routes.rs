@@ -87,7 +87,10 @@ pub async fn bet_submit(
         .expect("The next event should be available on the database")
         .name;
 
-    let bet = form_data.into_inner();
+    let mut bet = form_data.into_inner();
+
+    // This is needed for an edge case where the user bets after the deadline.
+    bet.race = current_event.to_owned();
 
     match bet_store.update_bet(bet.clone(), current_event).await {
         Ok(_) => Template::render(
