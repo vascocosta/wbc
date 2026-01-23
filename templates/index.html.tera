@@ -42,7 +42,7 @@
             <ol>
                 {% for entry in leaderboard %}
                     <li>
-                        {{ entry.username }} — {{ entry.points }} pts
+                        <strong>{{ entry.username }}</strong> — {{ entry.points }} pts
                     </li>
                 {% endfor %}
             </ol>
