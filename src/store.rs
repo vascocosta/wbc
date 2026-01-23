@@ -10,6 +10,7 @@ use uuid::Uuid;
 
 use crate::models::{Bet, Driver, Event, User};
 
+const CATEGORY: &str = "fr oceania";
 const CHANNEL: &str = "#formula1";
 
 pub struct UserStore<'a> {
@@ -160,7 +161,7 @@ impl<'a> EventStore<'a> {
             .find("events", |e: &Event| {
                 e.datetime > Utc::now()
                     && e.channel.to_lowercase() == CHANNEL.to_lowercase()
-                    && e.category.to_lowercase().contains("formula 1")
+                    && e.category.to_lowercase().contains(CATEGORY)
                     && e.description.eq_ignore_ascii_case("race")
             })
             .await?
