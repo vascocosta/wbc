@@ -87,9 +87,10 @@ pub async fn bet_submit(
         .expect("The next event should be available on the database")
         .name;
 
+    // We use a mutable bet binding with an updated race field to avoid a bug.
+    // When posting a new bet after its deadline (through bet_submit), which was rendered by bet_form before,
+    // if we don't use a new bet.race, the deadline could be abused.
     let mut bet = form_data.into_inner();
-
-    // This is needed for an edge case where the user bets after the deadline.
     bet.race = current_event.to_owned();
 
     match bet_store.update_bet(bet.clone(), current_event).await {
