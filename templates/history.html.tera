@@ -1,0 +1,46 @@
+{% extends "base" %}
+
+{% block title %}History{% endblock title %}
+
+{% block content %}
+<h1>History</h1>
+
+<div class="wide">
+    <div id="message" class="{% if error %}message error{% endif %}">
+        {% if error %} {{ error }} {% endif %}
+    </div>
+
+    {% if bets | length > 0 %}
+    <div class="table-wrapper">
+        <table class="bets-table">
+            <thead>
+                <tr>
+                    <th>Race</th>
+                    <th>P1</th>
+                    <th>P2</th>
+                    <th>P3</th>
+                    <th>P4</th>
+                    <th>P5</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bet in bets %}
+                <tr>
+                    <td>{{ bet.race }}</td>
+                    <td>{{ bet.p1 }}</td>
+                    <td>{{ bet.p2 }}</td>
+                    <td>{{ bet.p3 }}</td>
+                    <td>{{ bet.p4 }}</td>
+                    <td>{{ bet.p5 }}</td>
+                    <td>-</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="muted">No bets placed yet.</p>
+    {% endif %}
+</div>
+{% endblock content %}

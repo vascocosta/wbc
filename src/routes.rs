@@ -31,6 +31,29 @@ pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -
     Template::render("index", context! { logged_in, current_event })
 }
 
+#[get("/history")]
+pub async fn history(
+    cookies: &CookieJar<'_>,
+    user: User,
+    db: &State<Mutex<Database<&str>>>,
+) -> Template {
+    let logged_in = cookies.get("session").is_some();
+
+    let bet_store = BetStore::new(db);
+
+    let bets = match bet_store.get_bet(&user.username, None).await {
+        Ok(bets) => bets,
+        Err(_) => {
+            return Template::render(
+                "history",
+                context! { error: "Could not get your bet.", logged_in },
+            );
+        }
+    };
+
+    Template::render("history", context! {bets, logged_in})
+}
+
 #[get("/bet")]
 pub async fn bet_form(
     cookies: &CookieJar<'_>,
@@ -50,7 +73,7 @@ pub async fn bet_form(
         .expect("The next event should be available on the database")
         .name;
 
-    let bets = match bet_store.get_bet(&user.username, current_event).await {
+    let bets = match bet_store.get_bet(&user.username, Some(current_event)).await {
         Ok(bets) => bets,
         Err(_) => {
             return Template::render(

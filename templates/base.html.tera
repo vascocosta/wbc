@@ -19,6 +19,7 @@
                 <a href="/bet">Bet</a>
 
                 {% if logged_in %}
+                    <a href="/history">History</a>
                     <a href="/logout">Logout</a>
                 {% else %}
                     <a href="/login">Login</a>

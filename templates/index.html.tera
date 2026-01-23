@@ -25,8 +25,8 @@
                 </div>
 
                 <div class="event-actions">
-                    <a href="/log" class="btn">SHOW LOGS</a>
-                    <a href="/bet" class="btn">PLACE BET</a>
+                    <a href="/history" class="btn">History</a>
+                    <a href="/bet" class="btn">Place Bet</a>
                 </div>
 
             </div>

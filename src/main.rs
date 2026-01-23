@@ -20,6 +20,7 @@ fn rocket() -> _ {
                 index,
                 bet_form,
                 bet_submit,
+                history,
                 login_form,
                 login_submit,
                 logout,

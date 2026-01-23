@@ -268,3 +268,62 @@ button:hover {
     font-size: 1.3rem;
     font-weight: 600;
 }
+
+.table-wrapper {
+    margin-top: 1.5rem;
+    overflow-x: auto;
+}
+
+.bets-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 0.95rem;
+}
+
+.bets-table thead {
+    background: #f5f5f5;
+}
+
+.bets-table th,
+.bets-table td {
+    padding: 0.75rem 0.9rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.bets-table th {
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+
+.bets-table tbody tr {
+    border-bottom: 1px solid #eee;
+}
+
+.bets-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.bets-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.bets-table td:first-child,
+.bets-table th:first-child {
+    text-align: left;
+}
+
+.muted {
+    color: #666;
+    font-size: 0.95rem;
+    margin-top: 1rem;
+}
+
+.bets-table th:not(:first-child),
+.bets-table td:not(:first-child) {
+    font-family: monospace;
+}
