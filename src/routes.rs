@@ -11,7 +11,7 @@ use rocket::{
 };
 use rocket_dyn_templates::{Template, context};
 
-use crate::store::{BetStore, EventStore, UserStore};
+use crate::store::{BetStore, EventStore, ScoreStore, UserStore};
 use crate::{
     models::{Bet, Registration, User},
     store::DriverStore,
@@ -22,13 +22,16 @@ pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -
     let logged_in = cookies.get("session").is_some();
 
     let event_store = EventStore::new(db);
+    let score_store = ScoreStore::new(db);
 
     let current_event = &event_store
         .next_event()
         .await
         .expect("The next event should be available on the database");
 
-    Template::render("index", context! { logged_in, current_event })
+    let leaderboard = score_store.scores().await.unwrap_or_default();
+
+    Template::render("index", context! { logged_in, current_event, leaderboard })
 }
 
 #[get("/history")]

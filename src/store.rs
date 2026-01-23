@@ -8,7 +8,7 @@ use itertools::Itertools;
 use rocket::{State, tokio::sync::Mutex};
 use uuid::Uuid;
 
-use crate::models::{Bet, Driver, Event, User};
+use crate::models::{Bet, Driver, Event, Score, User};
 
 const CATEGORY: &str = "fr oceania";
 const CHANNEL: &str = "#formula1";
@@ -169,5 +169,19 @@ impl<'a> EventStore<'a> {
             .sorted_by(|a, b| a.datetime.cmp(&b.datetime))
             .next()
             .ok_or(DbError::NoMatch)
+    }
+}
+
+pub struct ScoreStore<'a> {
+    db: &'a State<Mutex<Database<&'static str>>>,
+}
+
+impl<'a> ScoreStore<'a> {
+    pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
+        Self { db }
+    }
+
+    pub async fn scores(&self) -> Result<Vec<Score>, DbError> {
+        self.db.lock().await.find("scores", |_: &Score| true).await
     }
 }
