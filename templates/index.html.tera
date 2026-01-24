@@ -35,21 +35,30 @@
         {% endif %}
     </div>
 
-    <div class="card leaderboard">
-        <h2>Leaderboard</h2>
-
-        {% if leaderboard %}
-            <ol>
-                {% for entry in leaderboard %}
-                    <li>
-                        <strong>{{ entry.username }}</strong> — {{ entry.points }} pts
-                    </li>
+    {% if scores | length > 0 %}
+    <div class="table-wrapper">
+        <table class="bets-table">
+            <thead>
+                <tr>
+                    <th>Pos</th>
+                    <th>Username</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for score in scores %}
+                <tr>
+                    <td>{{ score.position }}.</td>
+                    <td>{{ score.username }}</td>
+                    <td>{{ score.points }}</td>
+                </tr>
                 {% endfor %}
-            </ol>
-        {% else %}
-            <p>No standings yet.</p>
-        {% endif %}
+            </tbody>
+        </table>
     </div>
+    {% else %}
+    <p class="muted">No bets placed yet.</p>
+    {% endif %}
 
 </div>
 <script>

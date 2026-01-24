@@ -278,7 +278,7 @@ button:hover {
     width: 100%;
     border-collapse: collapse;
     background: #fff;
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
     font-size: 0.95rem;
 }

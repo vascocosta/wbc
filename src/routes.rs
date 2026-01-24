@@ -29,9 +29,9 @@ pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -
         .await
         .expect("The next event should be available on the database");
 
-    let leaderboard = score_store.scores().await.unwrap_or_default();
+    let scores = score_store.scores().await.unwrap_or_default();
 
-    Template::render("index", context! { logged_in, current_event, leaderboard })
+    Template::render("index", context! { logged_in, current_event, scores })
 }
 
 #[get("/history")]

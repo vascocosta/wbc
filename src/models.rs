@@ -85,6 +85,7 @@ pub struct Event {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Score {
+    pub position: u16,
     pub username: String,
     pub points: u16,
 }
