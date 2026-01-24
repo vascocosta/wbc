@@ -10,7 +10,7 @@
         {% if error %} {{ error }} {% endif %}
     </div>
 
-    {% if bets | length > 0 %}
+    {% if scored_bets | length > 0 %}
     <div class="table-wrapper">
         <table class="bets-table">
             <thead>
@@ -25,15 +25,15 @@
                 </tr>
             </thead>
             <tbody>
-                {% for bet in bets %}
+                {% for scored_bet in scored_bets %}
                 <tr>
-                    <td>{{ bet.race }}</td>
-                    <td>{{ bet.p1 }}</td>
-                    <td>{{ bet.p2 }}</td>
-                    <td>{{ bet.p3 }}</td>
-                    <td>{{ bet.p4 }}</td>
-                    <td>{{ bet.p5 }}</td>
-                    <td>-</td>
+                    <td>{{ scored_bet.bet.race }}</td>
+                    <td>{{ scored_bet.bet.p1 }}</td>
+                    <td>{{ scored_bet.bet.p2 }}</td>
+                    <td>{{ scored_bet.bet.p3 }}</td>
+                    <td>{{ scored_bet.bet.p4 }}</td>
+                    <td>{{ scored_bet.bet.p5 }}</td>
+                    <td>{{ scored_bet.points }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

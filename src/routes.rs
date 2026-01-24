@@ -11,7 +11,7 @@ use rocket::{
 };
 use rocket_dyn_templates::{Template, context};
 
-use crate::store::{BetStore, EventStore, ScoreStore, UserStore};
+use crate::store::{BetStore, EventStore, ResultStore, ScoreStore, UserStore};
 use crate::{
     models::{Bet, Registration, User},
     store::DriverStore,
@@ -43,6 +43,10 @@ pub async fn history(
     let logged_in = cookies.get("session").is_some();
 
     let bet_store = BetStore::new(db);
+    let score_store = ScoreStore::new(db);
+    let result_store = ResultStore::new(db);
+
+    let normalized_results = result_store.normalized_results().await.unwrap();
 
     let bets = match bet_store.get_bet(&user.username, None).await {
         Ok(bets) => bets,
@@ -53,8 +57,9 @@ pub async fn history(
             );
         }
     };
+    let scored_bets = score_store.scored_bets(&bets, &normalized_results).await;
 
-    Template::render("history", context! {bets, logged_in})
+    Template::render("history", context! {scored_bets, logged_in})
 }
 
 #[get("/bet")]

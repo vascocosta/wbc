@@ -25,6 +25,12 @@ pub struct Bet {
     pub p5: String,
 }
 
+#[derive(Debug, Serialize)]
+pub struct ScoredBet<'a> {
+    pub bet: &'a Bet,
+    pub points: u16,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct User {
     pub token: String,
@@ -88,4 +94,14 @@ pub struct Score {
     pub position: u16,
     pub username: String,
     pub points: u16,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct RaceResult {
+    pub race: String,
+    pub p1: String,
+    pub p2: String,
+    pub p3: String,
+    pub p4: String,
+    pub p5: String,
 }

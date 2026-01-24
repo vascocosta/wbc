@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use argon2::{
     Argon2, PasswordHasher,
     password_hash::{PasswordHash, PasswordVerifier, SaltString, rand_core::OsRng},
@@ -5,10 +7,10 @@ use argon2::{
 use chrono::Utc;
 use csv_db::{Database, DbError};
 use itertools::Itertools;
-use rocket::{State, tokio::sync::Mutex};
+use rocket::{State, futures::future::join_all, tokio::sync::Mutex};
 use uuid::Uuid;
 
-use crate::models::{Bet, Driver, Event, Score, User};
+use crate::models::{Bet, Driver, Event, RaceResult, Score, ScoredBet, User};
 
 const CATEGORY: &str = "fr oceania";
 const CHANNEL: &str = "#formula1";
@@ -183,5 +185,81 @@ impl<'a> ScoreStore<'a> {
 
     pub async fn scores(&self) -> Result<Vec<Score>, DbError> {
         self.db.lock().await.find("scores", |_: &Score| true).await
+    }
+
+    pub async fn scored_bets(
+        &'a self,
+        bets: &'a [Bet],
+        normalized_results: &'a HashMap<String, RaceResult>,
+    ) -> Vec<ScoredBet<'a>> {
+        let futures: Vec<_> = bets
+            .iter()
+            .map(|b| async move {
+                ScoredBet {
+                    bet: b,
+                    points: self.score_bet(b, normalized_results).await,
+                }
+            })
+            .collect();
+
+        join_all(futures).await
+    }
+
+    async fn score_bet(
+        &self,
+        bet: &'a Bet,
+        normalized_results: &'a HashMap<String, RaceResult>,
+    ) -> u16 {
+        let race_result = match normalized_results.get(&bet.race) {
+            Some(race_result) => race_result,
+            None => return 0,
+        };
+        let mut score = 0;
+
+        if bet.p1.to_lowercase() == race_result.p1.to_lowercase() {
+            score += 3;
+        }
+
+        if bet.p2.to_lowercase() == race_result.p2.to_lowercase() {
+            score += 3;
+        }
+
+        if bet.p3.to_lowercase() == race_result.p3.to_lowercase() {
+            score += 3;
+        }
+
+        if bet.p4.to_lowercase() == race_result.p4.to_lowercase() {
+            score += 6;
+        }
+
+        if bet.p5.to_lowercase() == race_result.p5.to_lowercase() {
+            score += 6;
+        }
+
+        score
+    }
+}
+
+pub struct ResultStore<'a> {
+    db: &'a State<Mutex<Database<&'static str>>>,
+}
+
+impl<'a> ResultStore<'a> {
+    pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
+        Self { db }
+    }
+
+    pub async fn normalized_results(&self) -> Result<HashMap<String, RaceResult>, DbError> {
+        let results = self.results().await?;
+
+        Ok(results.into_iter().map(|r| (r.race.clone(), r)).collect())
+    }
+
+    pub async fn results(&self) -> Result<Vec<RaceResult>, DbError> {
+        self.db
+            .lock()
+            .await
+            .find("results", |_: &RaceResult| true)
+            .await
     }
 }
