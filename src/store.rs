@@ -205,35 +205,28 @@ impl<'a> ScoreStore<'a> {
         join_all(futures).await
     }
 
-    async fn score_bet(
-        &self,
-        bet: &'a Bet,
-        normalized_results: &'a HashMap<String, RaceResult>,
-    ) -> u16 {
+    async fn score_bet(&self, bet: &Bet, normalized_results: &HashMap<String, RaceResult>) -> u16 {
         let race_result = match normalized_results.get(&bet.race) {
             Some(race_result) => race_result,
             None => return 0,
         };
+
         let mut score = 0;
 
-        if bet.p1.to_lowercase() == race_result.p1.to_lowercase() {
-            score += 3;
-        }
+        let matches = [
+            bet.p1.eq_ignore_ascii_case(&race_result.p1),
+            bet.p2.eq_ignore_ascii_case(&race_result.p2),
+            bet.p3.eq_ignore_ascii_case(&race_result.p3),
+            bet.p4.eq_ignore_ascii_case(&race_result.p4),
+            bet.p5.eq_ignore_ascii_case(&race_result.p5),
+        ];
 
-        if bet.p2.to_lowercase() == race_result.p2.to_lowercase() {
-            score += 3;
-        }
-
-        if bet.p3.to_lowercase() == race_result.p3.to_lowercase() {
-            score += 3;
-        }
-
-        if bet.p4.to_lowercase() == race_result.p4.to_lowercase() {
-            score += 6;
-        }
-
-        if bet.p5.to_lowercase() == race_result.p5.to_lowercase() {
-            score += 6;
+        for (pos, value) in matches.iter().enumerate() {
+            if pos < 4 && *value {
+                score += 3;
+            } else if pos >= 4 && *value {
+                score += 6;
+            }
         }
 
         score
