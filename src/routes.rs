@@ -19,7 +19,7 @@ use crate::{
 
 #[get("/")]
 pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -> Template {
-    let logged_in = cookies.get("session").is_some();
+    let logged_in = cookies.get_private("session").is_some();
 
     let event_store = EventStore::new(db);
     let score_store = ScoreStore::new(db);
@@ -40,7 +40,7 @@ pub async fn history(
     user: User,
     db: &State<Mutex<Database<&str>>>,
 ) -> Template {
-    let logged_in = cookies.get("session").is_some();
+    let logged_in = cookies.get_private("session").is_some();
 
     let bet_store = BetStore::new(db);
     let score_store = ScoreStore::new(db);
@@ -68,7 +68,7 @@ pub async fn bet_form(
     user: User,
     db: &State<Mutex<Database<&str>>>,
 ) -> Template {
-    let logged_in = cookies.get("session").is_some();
+    let logged_in = cookies.get_private("session").is_some();
 
     let driver_store = DriverStore::new(db);
     let bet_store = BetStore::new(db);
@@ -105,7 +105,7 @@ pub async fn bet_submit(
     db: &State<Mutex<Database<&str>>>,
     form_data: Form<Bet>,
 ) -> Template {
-    let logged_in = cookies.get("session").is_some();
+    let logged_in = cookies.get_private("session").is_some();
 
     let driver_store = DriverStore::new(db);
     let bet_store = BetStore::new(db);
@@ -175,9 +175,9 @@ pub async fn login_submit(
                 .http_only(true)
                 .same_site(SameSite::Lax)
                 .secure(true)
-                .expires(OffsetDateTime::now_utc() + Duration::days(1));
+                .expires(OffsetDateTime::now_utc() + Duration::days(365));
 
-            cookies.add(cookie);
+            cookies.add_private(cookie);
 
             Ok(Redirect::to(uri! { bet_form }))
         }
@@ -190,7 +190,7 @@ pub async fn login_submit(
 
 #[get("/logout")]
 pub async fn logout(cookies: &CookieJar<'_>) -> Redirect {
-    cookies.remove("session");
+    cookies.remove_private("session");
     Redirect::to(uri!(index))
 }
 

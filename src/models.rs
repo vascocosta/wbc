@@ -51,7 +51,7 @@ impl<'r> FromRequest<'r> for User {
         };
         let cookies = req.cookies();
 
-        match cookies.get("session") {
+        match cookies.get_private("session") {
             Some(token) => match get_user(token.value(), db).await {
                 Some(user) => Outcome::Success(user),
                 None => Outcome::Forward(Status::Unauthorized),
