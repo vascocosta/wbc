@@ -12,11 +12,12 @@ use uuid::Uuid;
 
 use crate::models::{Bet, Driver, Event, RaceResult, Score, ScoredBet, User};
 
-const CATEGORY: &str = "fr oceania";
+const CATEGORY: &str = "formula 1";
 const CHANNEL: &str = "#formula1";
 const CORRECT_PODIUM: u16 = 3;
 const CORRECT_FIVE: u16 = 6;
 const WRONG_PLACE: u16 = 1;
+const PARLAY: u16 = 4;
 
 pub struct UserStore<'a> {
     db: &'a State<Mutex<Database<&'static str>>>,
@@ -221,7 +222,7 @@ impl<'a> ScoreStore<'a> {
 
         for (pos, bet_driver) in bet_positions.iter().enumerate() {
             if bet_driver.eq_ignore_ascii_case(&result_positions[pos]) {
-                score += if pos < 4 {
+                score += if pos < 3 {
                     CORRECT_PODIUM
                 } else {
                     CORRECT_FIVE
@@ -232,6 +233,10 @@ impl<'a> ScoreStore<'a> {
             {
                 score += WRONG_PLACE;
             }
+        }
+
+        if score == 3 * CORRECT_PODIUM + 2 * CORRECT_FIVE {
+            score += PARLAY;
         }
 
         score
