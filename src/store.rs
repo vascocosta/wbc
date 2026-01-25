@@ -14,6 +14,9 @@ use crate::models::{Bet, Driver, Event, RaceResult, Score, ScoredBet, User};
 
 const CATEGORY: &str = "fr oceania";
 const CHANNEL: &str = "#formula1";
+const CORRECT_PODIUM: u16 = 3;
+const CORRECT_FIVE: u16 = 6;
+const WRONG_PLACE: u16 = 1;
 
 pub struct UserStore<'a> {
     db: &'a State<Mutex<Database<&'static str>>>,
@@ -206,26 +209,28 @@ impl<'a> ScoreStore<'a> {
     }
 
     async fn score_bet(&self, bet: &Bet, normalized_results: &HashMap<String, RaceResult>) -> u16 {
-        let race_result = match normalized_results.get(&bet.race) {
-            Some(race_result) => race_result,
+        let result = match normalized_results.get(&bet.race) {
+            Some(result) => result,
             None => return 0,
         };
 
+        let bet_positions = [&bet.p1, &bet.p2, &bet.p3, &bet.p4, &bet.p5];
+        let result_positions = [&result.p1, &result.p2, &result.p3, &result.p4, &result.p5];
+
         let mut score = 0;
 
-        let matches = [
-            bet.p1.eq_ignore_ascii_case(&race_result.p1),
-            bet.p2.eq_ignore_ascii_case(&race_result.p2),
-            bet.p3.eq_ignore_ascii_case(&race_result.p3),
-            bet.p4.eq_ignore_ascii_case(&race_result.p4),
-            bet.p5.eq_ignore_ascii_case(&race_result.p5),
-        ];
-
-        for (pos, value) in matches.iter().enumerate() {
-            if pos < 4 && *value {
-                score += 3;
-            } else if pos >= 4 && *value {
-                score += 6;
+        for (pos, bet_driver) in bet_positions.iter().enumerate() {
+            if bet_driver.eq_ignore_ascii_case(&result_positions[pos]) {
+                score += if pos < 4 {
+                    CORRECT_PODIUM
+                } else {
+                    CORRECT_FIVE
+                };
+            } else if result_positions
+                .iter()
+                .any(|result_driver| bet_driver.eq_ignore_ascii_case(&result_driver))
+            {
+                score += WRONG_PLACE;
             }
         }
 
