@@ -118,17 +118,24 @@ impl<'a> BetStore<'a> {
         Self { db }
     }
 
-    pub async fn get_bets(&self, username: &str, race: Option<&str>) -> Result<Vec<Bet>, DbError> {
+    pub async fn get_bets(
+        &self,
+        username: Option<&str>,
+        race: Option<&str>,
+    ) -> Result<Vec<Bet>, DbError> {
         self.db
             .lock()
             .await
             .find("bets", |b: &Bet| {
-                b.username.to_lowercase() == username.to_ascii_lowercase()
-                    && (if let Some(race) = race {
-                        b.race.to_lowercase() == race.to_lowercase()
-                    } else {
-                        true
-                    })
+                (if let Some(username) = username {
+                    b.username.eq_ignore_ascii_case(&username)
+                } else {
+                    true
+                }) && (if let Some(race) = race {
+                    b.race.eq_ignore_ascii_case(&race)
+                } else {
+                    true
+                })
             })
             .await
     }
