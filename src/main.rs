@@ -1,5 +1,5 @@
+mod controllers;
 mod models;
-mod routes;
 mod store;
 
 #[macro_use]
@@ -9,7 +9,7 @@ use csv_db::Database;
 use rocket::{fs::FileServer, tokio::sync::Mutex};
 use rocket_dyn_templates::Template;
 
-use routes::*;
+use controllers::*;
 
 #[launch]
 fn rocket() -> _ {
