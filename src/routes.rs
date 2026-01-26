@@ -46,9 +46,17 @@ pub async fn history(
     let score_store = ScoreStore::new(db);
     let result_store = ResultStore::new(db);
 
-    let normalized_results = result_store.normalized_results().await.unwrap();
+    let normalized_results = match result_store.normalized_results().await {
+        Ok(normalized_results) => normalized_results,
+        Err(_) => {
+            return Template::render(
+                "history",
+                context! { error: "Could not get event results.", logged_in },
+            );
+        }
+    };
 
-    let bets = match bet_store.get_bets(&user.username, None).await {
+    let bets = match bet_store.get_bets(Some(&user.username), None).await {
         Ok(bets) => bets,
         Err(_) => {
             return Template::render(
@@ -82,7 +90,7 @@ pub async fn bet_form(
         .name;
 
     let bets = match bet_store
-        .get_bets(&user.username, Some(current_event))
+        .get_bets(Some(&user.username), Some(current_event))
         .await
     {
         Ok(bets) => bets,
