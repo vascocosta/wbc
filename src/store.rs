@@ -118,7 +118,7 @@ impl<'a> BetStore<'a> {
         Self { db }
     }
 
-    pub async fn get_bet(&self, username: &str, race: Option<&str>) -> Result<Vec<Bet>, DbError> {
+    pub async fn get_bets(&self, username: &str, race: Option<&str>) -> Result<Vec<Bet>, DbError> {
         self.db
             .lock()
             .await

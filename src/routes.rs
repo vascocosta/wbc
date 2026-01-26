@@ -48,7 +48,7 @@ pub async fn history(
 
     let normalized_results = result_store.normalized_results().await.unwrap();
 
-    let bets = match bet_store.get_bet(&user.username, None).await {
+    let bets = match bet_store.get_bets(&user.username, None).await {
         Ok(bets) => bets,
         Err(_) => {
             return Template::render(
@@ -81,7 +81,10 @@ pub async fn bet_form(
         .expect("The next event should be available on the database")
         .name;
 
-    let bets = match bet_store.get_bet(&user.username, Some(current_event)).await {
+    let bets = match bet_store
+        .get_bets(&user.username, Some(current_event))
+        .await
+    {
         Ok(bets) => bets,
         Err(_) => {
             return Template::render(
