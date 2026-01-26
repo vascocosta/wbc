@@ -35,7 +35,7 @@
         {% endif %}
     </div>
 
-    {% if scores | length > 0 %}
+    {% if points | length > 0 %}
     <div class="table-wrapper">
         <table class="bets-table">
             <thead>
@@ -46,11 +46,11 @@
                 </tr>
             </thead>
             <tbody>
-                {% for score in scores %}
+                {% for row in points %}
                 <tr>
-                    <td>{{ score.position }}.</td>
-                    <td>{{ score.username }}</td>
-                    <td>{{ score.points }}</td>
+                    <td>{{ row.0 + 1 }}</td>
+                    <td>{{ row.1.0 }}</td>
+                    <td>{{ row.1.1 }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

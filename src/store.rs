@@ -10,7 +10,7 @@ use itertools::Itertools;
 use rocket::{State, futures::future::join_all, tokio::sync::Mutex};
 use uuid::Uuid;
 
-use crate::models::{Bet, Driver, Event, RaceResult, Score, ScoredBet, User};
+use crate::models::{Bet, Driver, Event, RaceResult, ScoredBet, User};
 
 const CATEGORY: &str = "formula 1";
 const CHANNEL: &str = "#formula1";
@@ -185,23 +185,17 @@ impl<'a> EventStore<'a> {
     }
 }
 
-pub struct ScoreStore<'a> {
-    db: &'a State<Mutex<Database<&'static str>>>,
-}
+pub struct ScoreStore {}
 
-impl<'a> ScoreStore<'a> {
-    pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
-        Self { db }
+impl ScoreStore {
+    pub fn new() -> Self {
+        Self {}
     }
 
-    pub async fn scores(&self) -> Result<Vec<Score>, DbError> {
-        self.db.lock().await.find("scores", |_: &Score| true).await
-    }
-
-    pub async fn scored_bets(
-        &'a self,
+    pub async fn scored_bets<'a>(
+        &self,
         bets: &'a [Bet],
-        normalized_results: &'a HashMap<String, RaceResult>,
+        normalized_results: &HashMap<String, RaceResult>,
     ) -> Vec<ScoredBet<'a>> {
         let futures: Vec<_> = bets
             .iter()

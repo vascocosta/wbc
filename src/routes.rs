@@ -1,4 +1,5 @@
 use csv_db::{Database, DbError};
+use itertools::Itertools;
 use rocket::{
     State,
     form::Form,
@@ -22,16 +23,48 @@ pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -
     let logged_in = cookies.get_private("session").is_some();
 
     let event_store = EventStore::new(db);
-    let score_store = ScoreStore::new(db);
+    let bet_store = BetStore::new(db);
+    let score_store = ScoreStore::new();
+    let result_store = ResultStore::new(db);
+
+    let normalized_results = match result_store.normalized_results().await {
+        Ok(normalized_results) => normalized_results,
+        Err(_) => {
+            return Template::render(
+                "history",
+                context! { error: "Could not get event results.", logged_in },
+            );
+        }
+    };
+
+    let bets = match bet_store.get_bets(None, None).await {
+        Ok(bets) => bets,
+        Err(_) => {
+            return Template::render(
+                "history",
+                context! { error: "Could not get bets.", logged_in },
+            );
+        }
+    };
+    let scored_bets = score_store.scored_bets(&bets, &normalized_results).await;
+    let grouped_bets = scored_bets.into_iter().chunk_by(|b| &b.bet.username);
+
+    let points: Vec<(usize, (&String, u16))> = grouped_bets
+        .into_iter()
+        .map(|(username, group)| {
+            let total_points: u16 = group.into_iter().map(|b| b.points).sum();
+            (username, total_points)
+        })
+        .sorted_by(|a, b| b.1.cmp(&a.1))
+        .enumerate()
+        .collect();
 
     let current_event = &event_store
         .next_event()
         .await
         .expect("The next event should be available on the database");
 
-    let scores = score_store.scores().await.unwrap_or_default();
-
-    Template::render("index", context! { logged_in, current_event, scores })
+    Template::render("index", context! { logged_in, current_event, points})
 }
 
 #[get("/history")]
@@ -43,7 +76,7 @@ pub async fn history(
     let logged_in = cookies.get_private("session").is_some();
 
     let bet_store = BetStore::new(db);
-    let score_store = ScoreStore::new(db);
+    let score_store = ScoreStore::new();
     let result_store = ResultStore::new(db);
 
     let normalized_results = match result_store.normalized_results().await {
