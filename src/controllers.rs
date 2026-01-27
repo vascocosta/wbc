@@ -12,7 +12,10 @@ use rocket::{
 };
 use rocket_dyn_templates::{Template, context};
 
-use crate::store::{BetStore, EventStore, ResultStore, ScoreStore, UserStore};
+use crate::{
+    models::ScoredBet,
+    store::{BetStore, EventStore, ResultStore, ScoreStore, UserStore},
+};
 use crate::{
     models::{Bet, Registration, User},
     store::DriverStore,
@@ -101,6 +104,44 @@ pub async fn history(
     let scored_bets = score_store.scored_bets(&bets, &normalized_results).await;
 
     Template::render("history", context! {scored_bets, logged_in})
+}
+
+#[get("/latest")]
+pub async fn latest(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -> Template {
+    let logged_in = cookies.get_private("session").is_some();
+
+    let bet_store = BetStore::new(db);
+    let score_store = ScoreStore::new();
+    let result_store = ResultStore::new(db);
+
+    let normalized_results = match result_store.normalized_results().await {
+        Ok(normalized_results) => normalized_results,
+        Err(_) => {
+            return Template::render(
+                "latest",
+                context! { error: "Could not get event results.", logged_in },
+            );
+        }
+    };
+
+    let bets = match bet_store.get_bets(None, None).await {
+        Ok(bets) => bets,
+        Err(_) => {
+            return Template::render(
+                "latest",
+                context! { error: "Could not get bets.", logged_in },
+            );
+        }
+    };
+    let scored_bets: Vec<ScoredBet<'_>> = score_store
+        .scored_bets(&bets, &normalized_results)
+        .await
+        .into_iter()
+        .rev()
+        .take(20)
+        .collect();
+
+    Template::render("latest", context! {scored_bets, logged_in})
 }
 
 #[get("/bet")]

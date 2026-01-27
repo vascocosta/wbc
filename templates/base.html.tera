@@ -17,6 +17,7 @@
 
             <div>
                 <a href="/bet">Bet</a>
+                <a href="/latest">Latest</a>
 
                 {% if logged_in %}
                     <a href="/history">History</a>

@@ -1,6 +1,6 @@
 {% extends "base" %}
 
-{% block title %}History{% endblock title %}
+{% block title %}Latest{% endblock title %}
 
 {% block content %}
 <div class="wide">
@@ -14,6 +14,7 @@
             <thead>
                 <tr>
                     <th>Race</th>
+                    <th>User</th>
                     <th>P1</th>
                     <th>P2</th>
                     <th>P3</th>
@@ -26,6 +27,7 @@
                 {% for scored_bet in scored_bets %}
                 <tr>
                     <td>{{ scored_bet.bet.race }}</td>
+                    <td>{{ scored_bet.bet.username }}</td>
                     <td>{{ scored_bet.bet.p1 }}</td>
                     <td>{{ scored_bet.bet.p2 }}</td>
                     <td>{{ scored_bet.bet.p3 }}</td>
