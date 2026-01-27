@@ -14,7 +14,7 @@ pub struct Registration {
     pub password: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, FromForm, PartialEq, Serialize)]
+#[derive(Clone, Default, Deserialize, FromForm, PartialEq, Serialize)]
 pub struct Bet {
     pub race: String,
     pub username: String,
@@ -25,13 +25,13 @@ pub struct Bet {
     pub p5: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Serialize)]
 pub struct ScoredBet<'a> {
     pub bet: &'a Bet,
     pub points: u16,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct User {
     pub token: String,
     pub username: String,
@@ -71,14 +71,14 @@ async fn get_user(token: &str, db: &State<Mutex<Database<&str>>>) -> Option<User
         .map(|u| u.to_owned())
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Driver {
     pub number: u8,
     pub code: String,
     pub name: String,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Event {
     pub category: String,
     pub name: String,
@@ -89,7 +89,7 @@ pub struct Event {
     notify: bool,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Deserialize, Serialize)]
 pub struct RaceResult {
     pub race: String,
     pub p1: String,
