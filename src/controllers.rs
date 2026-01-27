@@ -12,25 +12,16 @@ use rocket::{
 };
 use rocket_dyn_templates::{Template, context};
 
-use crate::{
-    models::ScoredBet,
-    store::{BetStore, EventStore, ResultStore, ScoreStore, UserStore},
-};
-use crate::{
-    models::{Bet, Registration, User},
-    store::DriverStore,
-};
+use crate::models::{Bet, Registration, User};
+use crate::{models::ScoredBet, store::Store};
 
 #[get("/")]
 pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -> Template {
     let logged_in = cookies.get_private("session").is_some();
 
-    let event_store = EventStore::new(db);
-    let bet_store = BetStore::new(db);
-    let score_store = ScoreStore::new();
-    let result_store = ResultStore::new(db);
+    let store = Store::new(db);
 
-    let normalized_results = match result_store.normalized_results().await {
+    let normalized_results = match store.normalized_results().await {
         Ok(normalized_results) => normalized_results,
         Err(_) => {
             return Template::render(
@@ -40,7 +31,7 @@ pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -
         }
     };
 
-    let bets = match bet_store.get_bets(None, None).await {
+    let bets = match store.get_bets(None, None).await {
         Ok(bets) => bets,
         Err(_) => {
             return Template::render(
@@ -49,7 +40,7 @@ pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -
             );
         }
     };
-    let scored_bets = score_store.scored_bets(&bets, &normalized_results).await;
+    let scored_bets = store.scored_bets(&bets, &normalized_results).await;
     let grouped_bets = scored_bets.into_iter().chunk_by(|b| &b.bet.username);
 
     let points: Vec<(usize, (&String, u16))> = grouped_bets
@@ -62,7 +53,7 @@ pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -
         .enumerate()
         .collect();
 
-    let current_event = &event_store
+    let current_event = &store
         .next_event()
         .await
         .expect("The next event should be available on the database");
@@ -78,11 +69,9 @@ pub async fn history(
 ) -> Template {
     let logged_in = cookies.get_private("session").is_some();
 
-    let bet_store = BetStore::new(db);
-    let score_store = ScoreStore::new();
-    let result_store = ResultStore::new(db);
+    let store = Store::new(db);
 
-    let normalized_results = match result_store.normalized_results().await {
+    let normalized_results = match store.normalized_results().await {
         Ok(normalized_results) => normalized_results,
         Err(_) => {
             return Template::render(
@@ -92,7 +81,7 @@ pub async fn history(
         }
     };
 
-    let bets = match bet_store.get_bets(Some(&user.username), None).await {
+    let bets = match store.get_bets(Some(&user.username), None).await {
         Ok(bets) => bets,
         Err(_) => {
             return Template::render(
@@ -101,7 +90,7 @@ pub async fn history(
             );
         }
     };
-    let scored_bets = score_store.scored_bets(&bets, &normalized_results).await;
+    let scored_bets = store.scored_bets(&bets, &normalized_results).await;
 
     Template::render("history", context! {scored_bets, logged_in})
 }
@@ -110,11 +99,9 @@ pub async fn history(
 pub async fn latest(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -> Template {
     let logged_in = cookies.get_private("session").is_some();
 
-    let bet_store = BetStore::new(db);
-    let score_store = ScoreStore::new();
-    let result_store = ResultStore::new(db);
+    let store = Store::new(db);
 
-    let normalized_results = match result_store.normalized_results().await {
+    let normalized_results = match store.normalized_results().await {
         Ok(normalized_results) => normalized_results,
         Err(_) => {
             return Template::render(
@@ -124,7 +111,7 @@ pub async fn latest(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) 
         }
     };
 
-    let bets = match bet_store.get_bets(None, None).await {
+    let bets = match store.get_bets(None, None).await {
         Ok(bets) => bets,
         Err(_) => {
             return Template::render(
@@ -133,7 +120,7 @@ pub async fn latest(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) 
             );
         }
     };
-    let scored_bets: Vec<ScoredBet<'_>> = score_store
+    let scored_bets: Vec<ScoredBet<'_>> = store
         .scored_bets(&bets, &normalized_results)
         .await
         .into_iter()
@@ -152,18 +139,16 @@ pub async fn bet_form(
 ) -> Template {
     let logged_in = cookies.get_private("session").is_some();
 
-    let driver_store = DriverStore::new(db);
-    let bet_store = BetStore::new(db);
-    let event_store = EventStore::new(db);
+    let store = Store::new(db);
 
-    let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
-    let current_event = &event_store
+    let drivers = store.all_drivers().await.ok().unwrap_or_default();
+    let current_event = &store
         .next_event()
         .await
         .expect("The next event should be available on the database")
         .name;
 
-    let bets = match bet_store
+    let bets = match store
         .get_bets(Some(&user.username), Some(current_event))
         .await
     {
@@ -192,12 +177,10 @@ pub async fn bet_submit(
 ) -> Template {
     let logged_in = cookies.get_private("session").is_some();
 
-    let driver_store = DriverStore::new(db);
-    let bet_store = BetStore::new(db);
-    let event_store = EventStore::new(db);
+    let store = Store::new(db);
 
-    let drivers = driver_store.all_drivers().await.ok().unwrap_or_default();
-    let current_event = &event_store
+    let drivers = store.all_drivers().await.ok().unwrap_or_default();
+    let current_event = &store
         .next_event()
         .await
         .expect("The next event should be available on the database")
@@ -209,13 +192,13 @@ pub async fn bet_submit(
     let mut bet = form_data.into_inner();
     bet.race = current_event.to_owned();
 
-    match bet_store.update_bet(bet.clone(), current_event).await {
+    match store.update_bet(bet.clone(), current_event).await {
         Ok(_) => Template::render(
             "bet",
             context! { current_event, drivers, bet, success: "Your bet was successfully updated.", logged_in },
         ),
         Err(e) => match e {
-            DbError::NoMatch => match bet_store.add_bet(bet.clone()).await {
+            DbError::NoMatch => match store.add_bet(bet.clone()).await {
                 Ok(_) => Template::render(
                     "bet",
                     context! { current_event, drivers, bet, success: "Your bet was successfully updated.", logged_in },
@@ -247,10 +230,10 @@ pub async fn login_submit(
     db: &State<Mutex<Database<&str>>>,
     form_data: Form<Registration>,
 ) -> Result<Redirect, Template> {
-    let user_store = UserStore::new(db);
+    let store = Store::new(db);
     let registration = form_data.into_inner();
 
-    match user_store
+    match store
         .validate_user(&registration.username, &registration.password)
         .await
     {
@@ -290,10 +273,10 @@ pub async fn register_submit(
     db: &State<Mutex<Database<&str>>>,
     form_data: Form<Registration>,
 ) -> Result<Flash<Redirect>, Template> {
-    let user_store = UserStore::new(db);
+    let store = Store::new(db);
     let registration = form_data.into_inner();
 
-    match user_store.user_exists(&registration.username).await {
+    match store.user_exists(&registration.username).await {
         Ok(exists) => {
             if exists {
                 Err(Template::render(
@@ -302,7 +285,7 @@ pub async fn register_submit(
                 ))
             } else {
                 // Username does not exist. Insert user into the database.
-                match user_store
+                match store
                     .add_user(&registration.username, &registration.password)
                     .await
                 {

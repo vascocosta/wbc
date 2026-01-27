@@ -8,7 +8,7 @@ use rocket::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::store::UserStore;
+use crate::store::Store;
 
 #[derive(FromForm)]
 pub struct Registration {
@@ -68,7 +68,7 @@ impl<'r> FromRequest<'r> for User {
         };
 
         match cookies.get_private("session") {
-            Some(token) => match UserStore::get_user(token.value(), db).await {
+            Some(token) => match Store::get_user(token.value(), db).await {
                 Some(user) => Outcome::Success(user),
                 None => Outcome::Forward(Status::Unauthorized),
             },

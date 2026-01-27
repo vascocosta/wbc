@@ -19,11 +19,11 @@ const CORRECT_FIVE: u16 = 6;
 const WRONG_PLACE: u16 = 1;
 const PARLAY: u16 = 4;
 
-pub struct UserStore<'a> {
+pub struct Store<'a> {
     db: &'a State<Mutex<Database<&'static str>>>,
 }
 
-impl<'a> UserStore<'a> {
+impl<'a> Store<'a> {
     pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
         Self { db }
     }
@@ -103,29 +103,9 @@ impl<'a> UserStore<'a> {
             .map_err(|_| "Could not hash password")?
             .to_string())
     }
-}
-
-pub struct DriverStore<'a> {
-    db: &'a State<Mutex<Database<&'static str>>>,
-}
-
-impl<'a> DriverStore<'a> {
-    pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
-        Self { db }
-    }
 
     pub async fn all_drivers(&self) -> Result<Vec<Driver>, DbError> {
         self.db.lock().await.find("drivers", |_| true).await
-    }
-}
-
-pub struct BetStore<'a> {
-    db: &'a State<Mutex<Database<&'static str>>>,
-}
-
-impl<'a> BetStore<'a> {
-    pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
-        Self { db }
     }
 
     pub async fn get_bets(
@@ -165,16 +145,6 @@ impl<'a> BetStore<'a> {
             })
             .await
     }
-}
-
-pub struct EventStore<'a> {
-    db: &'a State<Mutex<Database<&'static str>>>,
-}
-
-impl<'a> EventStore<'a> {
-    pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
-        Self { db }
-    }
 
     pub async fn next_event(&self) -> Result<Event, DbError> {
         self.db
@@ -192,16 +162,8 @@ impl<'a> EventStore<'a> {
             .next()
             .ok_or(DbError::NoMatch)
     }
-}
 
-pub struct ScoreStore {}
-
-impl ScoreStore {
-    pub fn new() -> Self {
-        Self {}
-    }
-
-    pub async fn scored_bets<'a>(
+    pub async fn scored_bets(
         &self,
         bets: &'a [Bet],
         normalized_results: &HashMap<String, RaceResult>,
@@ -250,16 +212,6 @@ impl ScoreStore {
         }
 
         score
-    }
-}
-
-pub struct ResultStore<'a> {
-    db: &'a State<Mutex<Database<&'static str>>>,
-}
-
-impl<'a> ResultStore<'a> {
-    pub fn new(db: &'a State<Mutex<Database<&'static str>>>) -> Self {
-        Self { db }
     }
 
     pub async fn normalized_results(&self) -> Result<HashMap<String, RaceResult>, DbError> {
