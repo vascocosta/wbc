@@ -34,7 +34,7 @@ impl<'a> UserStore<'a> {
             .lock()
             .await
             .find("users", |u: &User| {
-                u.username.to_lowercase() == username.to_lowercase()
+                u.username.eq_ignore_ascii_case(username)
             })
             .await?;
 
@@ -73,7 +73,7 @@ impl<'a> UserStore<'a> {
             .lock()
             .await
             .find("users", |u: &User| {
-                u.username.to_lowercase() == username.to_lowercase()
+                u.username.eq_ignore_ascii_case(username)
             })
             .await
             .ok()?;
@@ -161,8 +161,7 @@ impl<'a> BetStore<'a> {
             .lock()
             .await
             .update("bets", bet, |b: &&Bet| {
-                b.username.to_lowercase() == username
-                    && b.race.to_lowercase() == current_race.to_lowercase()
+                b.username.to_lowercase() == username && b.race.eq_ignore_ascii_case(current_race)
             })
             .await
     }
@@ -183,7 +182,7 @@ impl<'a> EventStore<'a> {
             .await
             .find("events", |e: &Event| {
                 e.datetime > Utc::now()
-                    && e.channel.to_lowercase() == CHANNEL.to_lowercase()
+                    && e.channel.eq_ignore_ascii_case(CHANNEL)
                     && e.category.to_lowercase().contains(CATEGORY)
                     && e.description.eq_ignore_ascii_case("race")
             })
