@@ -14,7 +14,7 @@ pub struct Registration {
     pub password: String,
 }
 
-#[derive(Clone, Default, Deserialize, FromForm, PartialEq, Serialize)]
+#[derive(Clone, Deserialize, FromForm, PartialEq, Serialize)]
 pub struct Bet {
     pub race: String,
     pub username: String,
@@ -23,6 +23,20 @@ pub struct Bet {
     pub p3: String,
     pub p4: String,
     pub p5: String,
+}
+
+impl Default for Bet {
+    fn default() -> Self {
+        Self {
+            race: "".to_string(),
+            username: "".to_string(),
+            p1: "NOR".to_string(),
+            p2: "VER".to_string(),
+            p3: "PIA".to_string(),
+            p4: "RUS".to_string(),
+            p5: "LEC".to_string(),
+        }
+    }
 }
 
 #[derive(Serialize)]
