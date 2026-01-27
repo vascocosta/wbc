@@ -69,7 +69,7 @@ impl<'a> UserStore<'a> {
             .ok()?;
 
         if let Some(user) = users.first() {
-            let parsed_hash = PasswordHash::new(&user.password).unwrap();
+            let parsed_hash = PasswordHash::new(&user.password).ok()?;
 
             if Argon2::default()
                 .verify_password(password.as_bytes(), &parsed_hash)
