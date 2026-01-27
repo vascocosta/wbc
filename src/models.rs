@@ -57,13 +57,13 @@ impl<'r> FromRequest<'r> for User {
     type Error = &'static str;
 
     async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        let cookies = req.cookies();
         let db = match req.guard::<&State<Mutex<Database<&str>>>>().await {
             Outcome::Success(db) => db,
             _ => {
-                return Outcome::Error((Status::InternalServerError, "Could not access database"));
+                return Outcome::Error((Status::InternalServerError, "Could not access database."));
             }
         };
-        let cookies = req.cookies();
 
         match cookies.get_private("session") {
             Some(token) => match get_user(token.value(), db).await {
