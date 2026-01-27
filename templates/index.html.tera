@@ -38,6 +38,7 @@
     {% if points | length > 0 %}
     <div class="table-wrapper">
         <table class="bets-table">
+            <caption>Leaderboard</caption>
             <thead>
                 <tr>
                     <th>Pos</th>

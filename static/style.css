@@ -327,3 +327,11 @@ button:hover {
 .bets-table td:not(:first-child) {
     font-family: monospace;
 }
+
+caption {
+    caption-side: top;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 1em;
+    margin-top: 2em
+}
