@@ -57,6 +57,16 @@ impl<'a> UserStore<'a> {
         self.db.lock().await.insert("users", user).await
     }
 
+    pub async fn get_user(token: &str, db: &State<Mutex<Database<&str>>>) -> Option<User> {
+        db.lock()
+            .await
+            .find("users", |u: &User| u.token == token)
+            .await
+            .ok()?
+            .into_iter()
+            .next()
+    }
+
     pub async fn validate_user(&self, username: &str, password: &str) -> Option<String> {
         let users = self
             .db

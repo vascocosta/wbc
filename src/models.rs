@@ -8,6 +8,8 @@ use rocket::{
 };
 use serde::{Deserialize, Serialize};
 
+use crate::store::UserStore;
+
 #[derive(FromForm)]
 pub struct Registration {
     pub username: String,
@@ -66,23 +68,13 @@ impl<'r> FromRequest<'r> for User {
         };
 
         match cookies.get_private("session") {
-            Some(token) => match get_user(token.value(), db).await {
+            Some(token) => match UserStore::get_user(token.value(), db).await {
                 Some(user) => Outcome::Success(user),
                 None => Outcome::Forward(Status::Unauthorized),
             },
             None => Outcome::Forward(Status::Unauthorized),
         }
     }
-}
-
-async fn get_user(token: &str, db: &State<Mutex<Database<&str>>>) -> Option<User> {
-    db.lock()
-        .await
-        .find("users", |u: &User| u.token == token)
-        .await
-        .ok()?
-        .into_iter()
-        .next()
 }
 
 #[derive(Deserialize, Serialize)]
