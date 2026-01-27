@@ -31,7 +31,7 @@ pub struct ScoredBet<'a> {
     pub points: u16,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct User {
     pub token: String,
     pub username: String,
@@ -71,14 +71,14 @@ async fn get_user(token: &str, db: &State<Mutex<Database<&str>>>) -> Option<User
         .next()
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Driver {
     pub number: u8,
     pub code: String,
     pub name: String,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Event {
     pub category: String,
     pub name: String,
@@ -89,7 +89,7 @@ pub struct Event {
     notify: bool,
 }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct RaceResult {
     pub race: String,
     pub p1: String,
