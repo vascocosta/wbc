@@ -17,10 +17,10 @@ fn rocket() -> _ {
         .mount(
             "/",
             routes![
-                index,
                 bet_form,
                 bet_submit,
                 history,
+                index,
                 latest,
                 login_form,
                 login_submit,
