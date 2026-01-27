@@ -67,8 +67,8 @@ async fn get_user(token: &str, db: &State<Mutex<Database<&str>>>) -> Option<User
         .find("users", |u: &User| u.token == token)
         .await
         .ok()?
-        .first()
-        .map(|u| u.to_owned())
+        .into_iter()
+        .next()
 }
 
 #[derive(Clone, Deserialize, Serialize)]
