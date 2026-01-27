@@ -12,8 +12,8 @@ use rocket::{
 };
 use rocket_dyn_templates::{Template, context};
 
-use crate::models::{Bet, Registration, User};
-use crate::{models::ScoredBet, store::Store};
+use crate::models::{Bet, Registration, ScoredBet, User};
+use crate::store::Store;
 
 #[get("/")]
 pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -> Template {
