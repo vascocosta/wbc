@@ -231,6 +231,7 @@ pub async fn login_submit(
     form_data: Form<Registration>,
 ) -> Result<Redirect, Template> {
     let store = Store::new(db);
+
     let registration = form_data.into_inner();
 
     match store
@@ -274,6 +275,7 @@ pub async fn register_submit(
     form_data: Form<Registration>,
 ) -> Result<Flash<Redirect>, Template> {
     let store = Store::new(db);
+
     let registration = form_data.into_inner();
 
     match store.user_exists(&registration.username).await {
