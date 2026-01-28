@@ -1,0 +1,155 @@
+{% extends "base" %}
+
+{% block title %}Rules{% endblock title %}
+
+{% block content %}
+<div class="wide">
+    <h2>General Rules</h2>
+
+    <p>
+        In this game you place a bet which consists of predicting the top five drivers
+        of a race in their exact finishing order. Points are awarded based on how closely
+        your prediction matches the official race result. For further details concerning
+        how the points are awarded please check the scoring system section below.
+    </p>
+
+    <p>
+        For each race there is a deadline to place a bet, which is the exact time of the
+        start of the formation lap. If you place a bet after the deadline, the system will
+        automatically register that bet for the next race, so be careful. In the advent of
+        a delayed start to the race, this deadline will <strong>not</strong> move forward.
+    </p>
+
+    <p>
+        The displayed deadline date and time tries to be localised to your time zone, but
+        please double check this is the case and place a banker bet earlier on. You can
+        always update your bet for the current race as many times as you want, before that
+        time.
+    </p>
+
+    <h2>Scoring system</h2>
+
+    <p>
+        For each position in your bet, the scoring works as follows:
+    </p>
+
+    <ul>
+        <li>
+            <strong>Correct driver in the correct position (P1–P3):</strong><br>
+            You earn <strong>{{ correct_podium }}</strong> points.
+        </li>
+        <li>
+            <strong>Correct driver in the correct position (P4–P5):</strong><br>
+            You earn <strong>{{ correct_five }}</strong> points.
+        </li>
+        <li>
+            <strong>Correct driver but in the wrong position (anywhere in the top 5):</strong><br>
+            You earn <strong>{{ wrong_place }}</strong> points.
+        </li>
+        <li>
+            <strong>Driver not present in the actual top 5:</strong><br>
+            You earn <strong>0 points</strong> for that position.
+        </li>
+        <li>
+            <strong>All drivers in the correct position (P1-P5)</strong><br>
+            You earn a bonus of <strong>{{ parlay }}</strong> additional points.
+        </li>
+    </ul>
+
+    <h2>Examples</h2>
+
+    <h3>Example 1: Perfect Bet</h3>
+
+    <p><strong>Official result:</strong></p>
+    <ul>
+        <li>P1: Verstappen</li>
+        <li>P2: Norris</li>
+        <li>P3: Leclerc</li>
+        <li>P4: Hamilton</li>
+        <li>P4: Sainz</li>
+    </ul>
+
+    <p><strong>Your bet:</strong></p>
+
+    <p>
+        All drivers are in the correct positions.
+        Positions 1–3 score <strong>{{ correct_podium }}</strong> each,
+        and positions 4–5 score <strong>{{ correct_five }}</strong> each.
+    </p>
+
+    <ul>
+        <li>P1: Verstappen — correct position → <strong>{{ correct_podium }}</strong></li>
+        <li>P2: Norris — correct position → <strong>{{ correct_podium }}</strong></li>
+        <li>P3: Leclerc — correct position → <strong>{{ correct_podium }}</strong></li>
+        <li>P4: Hamilton — correct position → <strong>{{ correct_five }}</strong></li>
+        <li>P5: Sainz — correct position → <strong>{{ correct_five }}</strong></li>
+        <li>Bonus → <strong>{{ parlay }}</strong></li>
+    </ul>
+
+    <p>
+        Your total points: <strong>{{ correct_podium }}</strong> + <strong>{{ correct_podium }}</strong> +
+        <strong>{{ correct_podium }}</strong> +
+        <strong>{{ correct_five }}</strong> + <strong>{{ correct_five }}</strong> +
+        <strong>{{ parlay }}</strong> =
+        <strong>{{ correct_podium + correct_podium + correct_podium + correct_five + correct_five + parlay }}</strong> points.
+    </p>
+
+    <h3>Example 2: Correct Drivers, Mixed Order</h3>
+
+    <p><strong>Official result:</strong></p>
+    <ul>
+        <li>P1: Verstappen</li>
+        <li>P2: Norris</li>
+        <li>P3: Leclerc</li>
+        <li>P4: Hamilton</li>
+        <li>P5: Sainz</li>
+    </ul>
+
+    <p><strong>Your bet:</strong></p>
+
+    <ul>
+        <li>P1: Norris — correct driver, wrong place → <strong>{{ wrong_place }}</strong></li>
+        <li>P2: Verstappen — correct driver, wrong place → <strong>{{ wrong_place }}</strong></li>
+        <li>P3: Leclerc — correct position → <strong>{{ correct_podium }}</strong></li>
+        <li>P4: Sainz — correct driver, wrong place → <strong>{{ wrong_place }}</strong></li>
+        <li>P5: Hamilton — correct driver, wrong place → <strong>{{ wrong_place }}</strong></li>
+        <li>Bonus → <strong>0</strong> </li>
+    </ul>
+
+    <p>
+        Your total points: = <strong>{{ wrong_place }}</strong> + <strong>{{ wrong_place }}</strong> +
+        <strong>{{ correct_podium }}</strong> + <strong>{{ wrong_place }}</strong> +
+        <strong>{{ wrong_place }}</strong> =
+        <strong>{{ wrong_place + wrong_place + correct_podium + wrong_place + wrong_place }}</strong> points.
+    </p>
+
+    <h3>Example 3: Partial Match</h3>
+
+    <p><strong>Official result:</strong></p>
+    <ul>
+        <li>P1: Verstappen</li>
+        <li>P2: Norris</li>
+        <li>P3: Leclerc</li>
+        <li>P4: Hamilton</li>
+        <li>P5: Sainz</li>
+    </ul>
+
+    <p><strong>Your bet:</strong></p>
+
+    <ul>
+        <li>P1: Verstappen — correct position → <strong>{{ correct_podium }}</strong></li>
+        <li>P2: Alonso — not in top 5 → <strong>0</strong></li>
+        <li>P3: Leclerc — correct position → <strong>{{ correct_podium }}</strong></li>
+        <li>P4: Perez — not in top 5 → <strong>0</strong></li>
+        <li>P5: Sainz — correct position → <strong>{{ correct_five }}</strong></li>
+        <li>Bonus → <strong>0</strong> </li>
+    </ul>
+
+    <p>
+        Your total points: = <strong>{{ correct_podium }}</strong> + <strong>0</strong> +
+        <strong>{{ correct_podium }}</strong> + <strong>0</strong> +
+        <strong>{{ correct_five }}</strong> =
+        <strong>{{ correct_podium + 0 + correct_podium + 0 + correct_five }}</strong> points.
+    </p>
+</div>
+{% endblock content %}

@@ -26,7 +26,8 @@ fn rocket() -> _ {
                 login_submit,
                 logout,
                 register_form,
-                register_submit
+                register_submit,
+                rules,
             ],
         )
         .register("/", catchers![unauthorized])

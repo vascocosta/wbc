@@ -13,7 +13,7 @@ use rocket::{
 use rocket_dyn_templates::{Template, context};
 
 use crate::models::{Bet, Registration, ScoredBet, User};
-use crate::store::Store;
+use crate::store::{CORRECT_FIVE, CORRECT_PODIUM, PARLAY, Store, WRONG_PLACE};
 
 #[get("/")]
 pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -> Template {
@@ -307,6 +307,16 @@ pub async fn register_submit(
             context! { error: "Error accessing database." },
         )),
     }
+}
+
+#[get("/rules")]
+pub async fn rules(cookies: &CookieJar<'_>) -> Template {
+    let logged_in = cookies.get_private("session").is_some();
+
+    Template::render(
+        "rules",
+        context! { logged_in, correct_podium: CORRECT_PODIUM, correct_five: CORRECT_FIVE, wrong_place: WRONG_PLACE, parlay: PARLAY },
+    )
 }
 
 #[catch(401)]

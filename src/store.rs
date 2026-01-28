@@ -14,10 +14,10 @@ use crate::models::{Bet, Driver, Event, RaceResult, ScoredBet, User};
 
 const CATEGORY: &str = "formula 1";
 const CHANNEL: &str = "#formula1";
-const CORRECT_PODIUM: u16 = 3;
-const CORRECT_FIVE: u16 = 6;
-const WRONG_PLACE: u16 = 1;
-const PARLAY: u16 = 4;
+pub const CORRECT_PODIUM: u16 = 3;
+pub const CORRECT_FIVE: u16 = 6;
+pub const WRONG_PLACE: u16 = 1;
+pub const PARLAY: u16 = 4;
 
 pub struct Store<'a> {
     db: &'a State<Mutex<Database<&'static str>>>,
