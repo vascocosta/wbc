@@ -41,7 +41,7 @@ pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -
         }
     };
     let scored_bets = store.scored_bets(&bets, &normalized_results).await;
-    let grouped_bets = scored_bets.into_iter().chunk_by(|b| &b.bet.username);
+    let grouped_bets = scored_bets.iter().into_group_map_by(|b| &b.bet.username);
 
     let points: Vec<(usize, (&String, u16))> = grouped_bets
         .into_iter()
