@@ -25,6 +25,8 @@ fn rocket() -> _ {
                 login_form,
                 login_submit,
                 logout,
+                profile_form,
+                profile_submit,
                 register_form,
                 register_submit,
                 rules,

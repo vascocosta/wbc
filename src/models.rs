@@ -16,6 +16,12 @@ pub struct Registration {
     pub password: String,
 }
 
+#[derive(FromForm)]
+pub struct Profile {
+    pub country: String,
+    pub password: String,
+}
+
 #[derive(Clone, Deserialize, FromForm, PartialEq, Serialize)]
 pub struct Bet {
     pub race: String,
@@ -47,11 +53,12 @@ pub struct ScoredBet<'a> {
     pub points: u16,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Default, Deserialize, PartialEq, Serialize)]
 pub struct User {
     pub token: String,
     pub username: String,
     pub password: String,
+    pub country: String,
 }
 
 #[rocket::async_trait]

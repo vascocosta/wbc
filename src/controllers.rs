@@ -12,7 +12,7 @@ use rocket::{
 };
 use rocket_dyn_templates::{Template, context};
 
-use crate::models::{Bet, Registration, ScoredBet, User};
+use crate::models::{Bet, Profile, Registration, ScoredBet, User};
 use crate::store::{CORRECT_FIVE, CORRECT_PODIUM, PARLAY, Store, WRONG_PLACE};
 
 #[get("/")]
@@ -261,6 +261,92 @@ pub async fn login_submit(
 pub async fn logout(cookies: &CookieJar<'_>) -> Redirect {
     cookies.remove_private("session");
     Redirect::to(uri!(index))
+}
+
+#[get("/profile")]
+pub async fn profile_form(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -> Template {
+    let logged_in = cookies.get_private("session").is_some();
+
+    let token = match cookies.get_private("session") {
+        Some(token) => token.value().to_owned(),
+        None => {
+            return Template::render(
+                "profile",
+                context! { error: "Could not find your user.", logged_in},
+            );
+        }
+    };
+
+    let user = match Store::get_user(&token, db).await {
+        Some(user) => user,
+        None => {
+            return Template::render(
+                "profile",
+                context! { error: "Could not find your user.", logged_in },
+            );
+        }
+    };
+
+    Template::render("profile", context! { country: &user.country, logged_in})
+}
+
+#[post("/profile", data = "<form_data>")]
+pub async fn profile_submit(
+    cookies: &CookieJar<'_>,
+    db: &State<Mutex<Database<&str>>>,
+    form_data: Form<Profile>,
+) -> Template {
+    let logged_in = cookies.get_private("session").is_some();
+
+    let store = Store::new(db);
+
+    let profile_data = form_data.into_inner();
+
+    let token = match cookies.get_private("session") {
+        Some(token) => token.value().to_owned(),
+        None => {
+            return Template::render(
+                "profile",
+                context! { error: "Could not find your user.", logged_in },
+            );
+        }
+    };
+
+    let mut user = match Store::get_user(&token, db).await {
+        Some(user) => user,
+        None => {
+            return Template::render(
+                "profile",
+                context! { error: "Could not find your user.", logged_in },
+            );
+        }
+    };
+
+    user.country = profile_data.country.clone();
+
+    if profile_data.password.len() > 0 {
+        user.password = match Store::hash_password(&profile_data.password).await {
+            Ok(hashed_password) => hashed_password,
+            Err(_) => {
+                return Template::render(
+                    "profile",
+                    context! { error: "Could not update your profile.", logged_in },
+                );
+            }
+        };
+    }
+
+    if store.update_user(user, &token).await.is_err() {
+        return Template::render(
+            "profile",
+            context! { error: "Could not update your profile.", logged_in },
+        );
+    }
+
+    Template::render(
+        "profile",
+        context! { country: profile_data.country, success: "Profile updated successfully.", logged_in },
+    )
 }
 
 #[get("/register")]

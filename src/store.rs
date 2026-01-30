@@ -52,9 +52,18 @@ impl<'a> Store<'a> {
             password: Self::hash_password(password)
                 .await
                 .map_err(|_| DbError::NoMatch)?,
+            country: "".to_string(),
         };
 
         self.db.lock().await.insert("users", user).await
+    }
+
+    pub async fn update_user(&self, user: User, token: &str) -> Result<(), DbError> {
+        self.db
+            .lock()
+            .await
+            .update("users", user, |u: &&User| u.token == token)
+            .await
     }
 
     pub async fn get_user(token: &str, db: &State<Mutex<Database<&str>>>) -> Option<User> {
@@ -94,7 +103,7 @@ impl<'a> Store<'a> {
         }
     }
 
-    async fn hash_password(password: &str) -> Result<String, &'static str> {
+    pub async fn hash_password(password: &str) -> Result<String, &'static str> {
         let salt = SaltString::generate(&mut OsRng);
         let argon2 = Argon2::default();
 
