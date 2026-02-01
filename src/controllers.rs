@@ -364,33 +364,17 @@ pub async fn register_submit(
 
     let registration = form_data.into_inner();
 
-    match store.user_exists(&registration.username).await {
-        Ok(exists) => {
-            if exists {
-                Err(Template::render(
-                    "register",
-                    context! { error: "Username already exists." },
-                ))
-            } else {
-                // Username does not exist. Insert user into the database.
-                match store
-                    .add_user(&registration.username, &registration.password)
-                    .await
-                {
-                    Ok(_) => Ok(Flash::success(
-                        Redirect::to(uri!(login_form)),
-                        "Registration successful. You can now login.",
-                    )),
-                    Err(_) => Err(Template::render(
-                        "register",
-                        context! { error: "Registration failed." },
-                    )),
-                }
-            }
-        }
+    match store
+        .add_user(&registration.username, &registration.password)
+        .await
+    {
+        Ok(_) => Ok(Flash::success(
+            Redirect::to(uri!(login_form)),
+            "Registration successful. You can now login.",
+        )),
         Err(_) => Err(Template::render(
             "register",
-            context! { error: "Error accessing database." },
+            context! { error: "Registration failed." },
         )),
     }
 }

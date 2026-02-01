@@ -1,4 +1,7 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    io::{Error, ErrorKind},
+};
 
 use argon2::{
     Argon2, PasswordHasher,
@@ -28,34 +31,29 @@ impl<'a> Store<'a> {
         Self { db }
     }
 
-    pub async fn user_exists(&self, username: &str) -> Result<bool, DbError> {
-        let users = self
-            .db
-            .lock()
-            .await
+    pub async fn add_user(&self, username: &str, password: &str) -> Result<(), DbError> {
+        let db_lock = self.db.lock().await;
+
+        let users = db_lock
             .find("users", |u: &User| {
                 u.username.eq_ignore_ascii_case(username)
             })
             .await?;
 
         if users.is_empty() {
-            Ok(false)
+            let user = User {
+                token: Uuid::new_v4().to_string(),
+                username: username.to_lowercase(),
+                password: Self::hash_password(password)
+                    .await
+                    .map_err(|_| DbError::NoMatch)?,
+                country: "".to_string(),
+            };
+
+            db_lock.insert("users", user).await
         } else {
-            Ok(true)
+            Err(DbError::Io(Error::from(ErrorKind::AlreadyExists)))
         }
-    }
-
-    pub async fn add_user(&self, username: &str, password: &str) -> Result<(), DbError> {
-        let user = User {
-            token: Uuid::new_v4().to_string(),
-            username: username.to_lowercase(),
-            password: Self::hash_password(password)
-                .await
-                .map_err(|_| DbError::NoMatch)?,
-            country: "".to_string(),
-        };
-
-        self.db.lock().await.insert("users", user).await
     }
 
     pub async fn update_user(&self, user: User, token: &str) -> Result<(), DbError> {
