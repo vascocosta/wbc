@@ -335,3 +335,38 @@ caption {
     margin-bottom: 1em;
     margin-top: 2em
 }
+
+@media (max-width: 600px) {
+    .bets-table thead {
+        display: none;
+    }
+
+    .bets-table,
+    .bets-table tbody,
+    .bets-table tr,
+    .bets-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .bets-table tr {
+        margin-bottom: 1rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 0.75rem;
+        background: #fff;
+    }
+
+    .bets-table td {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.4rem 0;
+        text-align: left;
+    }
+
+    .bets-table td::before {
+        content: attr(data-label);
+        font-weight: 800;
+        color: #555;
+    }
+}
