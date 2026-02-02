@@ -362,7 +362,7 @@ caption {
     .bets-table td {
         display: flex;
         justify-content: space-between;
-        padding: 0.4rem 0;
+        padding: 1rem 0;
         text-align: left;
     }
 
