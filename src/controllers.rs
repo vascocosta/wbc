@@ -1,4 +1,4 @@
-use csv_db::{Database, DbError};
+use csv_db::Database;
 use itertools::Itertools;
 use rocket::{
     State,
@@ -197,22 +197,11 @@ pub async fn bet_submit(
             "bet",
             context! { current_event, drivers, bet, success: "Your bet was successfully updated.", logged_in },
         ),
-        Err(e) => match e {
-            DbError::NoMatch => match store.add_bet(bet.clone()).await {
-                Ok(_) => Template::render(
-                    "bet",
-                    context! { current_event, drivers, bet, success: "Your bet was successfully updated.", logged_in },
-                ),
-                Err(_) => Template::render(
-                    "bet",
-                    context! { current_event, drivers, bet, error: "Problem updating bet.", logged_in },
-                ),
+        Err(_) => Template::render(
+            "bet",
+            context! { current_event, drivers, bet, error: "Problem updating bet.", logged_in
             },
-            _ => Template::render(
-                "bet",
-                context! { current_event, drivers, bet, error: "Problem updating bet.", logged_in },
-            ),
-        },
+        ),
     }
 }
 

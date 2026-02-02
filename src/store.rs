@@ -137,20 +137,27 @@ impl<'a> Store<'a> {
             .await
     }
 
-    pub async fn add_bet(&self, bet: Bet) -> Result<(), DbError> {
-        self.db.lock().await.insert("bets", bet).await
-    }
-
     pub async fn update_bet(&self, bet: Bet, current_race: &str) -> Result<(), DbError> {
         let username = bet.username.to_lowercase();
 
-        self.db
-            .lock()
-            .await
-            .update("bets", bet, |b: &&Bet| {
+        let db_lock = self.db.lock().await;
+
+        if let Err(e) = db_lock
+            .update("bets", bet.clone(), |b: &&Bet| {
                 b.username.to_lowercase() == username && b.race.eq_ignore_ascii_case(current_race)
             })
             .await
+        {
+            match e {
+                DbError::NoMatch => match db_lock.insert("bets", bet).await {
+                    Ok(_) => return Ok(()),
+                    Err(_) => return Err(DbError::Io(Error::from(ErrorKind::Other))),
+                },
+                _ => return Err(DbError::Io(Error::from(ErrorKind::Other))),
+            }
+        }
+
+        Ok(())
     }
 
     pub async fn next_event(&self) -> Result<Event, DbError> {
