@@ -312,11 +312,6 @@ button:hover {
     background: #fafafa;
 }
 
-.bets-table td:first-child,
-.bets-table th:first-child {
-    text-align: left;
-}
-
 .muted {
     color: #666;
     font-size: 0.95rem;
