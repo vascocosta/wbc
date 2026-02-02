@@ -20,7 +20,6 @@ body {
     line-height: 1.6;
 }
 
-/* Navbar Styling */
 .navbar {
     background-color: var(--dark);
     padding: 1rem 0;
@@ -49,14 +48,12 @@ body {
     color: var(--primary);
 }
 
-/* Content Layout */
 .container {
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
 }
 
-/* Form Wrapper */
 .form-wrapper {
     display: flex;
     flex-direction: column;
@@ -76,22 +73,17 @@ body {
     text-align: center;
 }
 
-/* Form Card Styling */
 form {
     background: var(--white);
     padding: 2.5rem;
     border-radius: var(--border-radius);
     width: 100%;
     max-width: 450px;
-    /* Slightly wider for better balance */
     border: 2px solid #eeeeee;
-
-    /* Ensure the form itself doesn't have alignment-breaking margins */
     margin-left: auto;
     margin-right: auto;
 }
 
-/* Adjusting the Bet form to be wider than Login/Register */
 form[action="/bet"] {
     max-width: 550px;
 }
@@ -101,7 +93,6 @@ h1 {
     color: var(--dark);
 }
 
-/* Form Elements */
 label {
     display: block;
     margin-bottom: 8px;
@@ -142,7 +133,6 @@ button:hover {
     background-color: #005fa3;
 }
 
-/* Messages */
 .message {
     padding: 15px;
     border-radius: 8px;
@@ -163,7 +153,6 @@ button:hover {
     border: 1px solid #007aff;
 }
 
-/* Responsive adjustments */
 @media (max-width: 600px) {
     .navbar-inner {
         flex-direction: column;
@@ -171,7 +160,6 @@ button:hover {
     }
 }
 
-/* Hero section */
 .hero {
     text-align: center;
     padding: 0rem 1rem 2rem;
@@ -187,7 +175,6 @@ button:hover {
     color: #555;
 }
 
-/* Card (reusable, lighter than container) */
 .card {
     background: #ffffff;
     border-radius: 8px;
@@ -199,7 +186,6 @@ button:hover {
     margin-bottom: 0.75rem;
 }
 
-/* Call-to-action button */
 .btn {
     display: inline-block;
     padding: 0.6rem 1.2rem;
@@ -214,14 +200,12 @@ button:hover {
     background: #005fa3;
 }
 
-/* Event metadata */
 .event-meta {
     color: #666;
     font-size: 0.95rem;
     margin-top: 0.25rem;
 }
 
-/* Leaderboard preview */
 .leaderboard {
     margin-top: 2rem;
 }
