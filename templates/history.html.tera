@@ -3,7 +3,9 @@
 {% block title %}History{% endblock title %}
 
 {% block content %}
-<div class="wide">
+<div class="form-wrapper">
+    <h1>HISTORY OF YOUR BETS</h1>
+
     <div id="message" class="{% if error %}message error{% endif %}">
         {% if error %} {{ error }} {% endif %}
     </div>

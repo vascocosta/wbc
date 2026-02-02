@@ -23,7 +23,7 @@ body {
 .navbar {
     background-color: var(--dark);
     padding: 1rem 0;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .navbar-inner {
