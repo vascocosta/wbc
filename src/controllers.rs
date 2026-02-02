@@ -90,7 +90,13 @@ pub async fn history(
             );
         }
     };
-    let scored_bets = store.scored_bets(&bets, &normalized_results).await;
+    let scored_bets: Vec<ScoredBet<'_>> = store
+        .scored_bets(&bets, &normalized_results)
+        .await
+        .into_iter()
+        .rev()
+        .take(24)
+        .collect();
 
     Template::render("history", context! {scored_bets, logged_in})
 }
