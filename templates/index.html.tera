@@ -40,7 +40,7 @@
             <caption>Leaderboard</caption>
             <thead>
                 <tr>
-                    <th>Pos</th>
+                    <th>Position</th>
                     <th>Username</th>
                     <th>Points</th>
                 </tr>
@@ -48,9 +48,9 @@
             <tbody>
                 {% for row in points %}
                 <tr>
-                    <td>{{ row.0 + 1 }}</td>
-                    <td>{{ row.1.0 }}</td>
-                    <td>{{ row.1.1 }}</td>
+                    <td data-label="Position">{{ row.0 + 1 }}</td>
+                    <td data-label="Username">{{ row.1.0 }}</td>
+                    <td data-label="Points">{{ row.1.1 }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
