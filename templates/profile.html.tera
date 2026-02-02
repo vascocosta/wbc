@@ -282,11 +282,11 @@
 
 <script>
 function validateProfile() {
-    const passLength = document.getElementById('password').value.length;
+    const pass = document.getElementById("password").value;
 
-    if (passLength > 0 && passLength < 6) {
+    if (pass.length < 6 || pass.includes(" ") || ! /^[!-~]+$/.test(pass)) {
         document.getElementById("message").className = "message error";
-        document.getElementById('message').innerHTML = 'Your password must be at least 6 characters long.';
+        document.getElementById("message").innerHTML = "The password must contain at least 6 alphanumeric chars only.";
 
         return false;
     }
