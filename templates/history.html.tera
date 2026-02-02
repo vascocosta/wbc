@@ -25,7 +25,7 @@
             <tbody>
                 {% for scored_bet in scored_bets %}
                 <tr>
-                    <td data-label="Race">{{ scored_bet.bet.race }}</td>
+                    <td>{{ scored_bet.bet.race }}</td>
                     <td data-label="P1">{{ scored_bet.bet.p1 }}</td>
                     <td data-label="P2">{{ scored_bet.bet.p2 }}</td>
                     <td data-label="P3">{{ scored_bet.bet.p3 }}</td>
