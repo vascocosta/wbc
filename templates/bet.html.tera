@@ -71,7 +71,7 @@
             </select>
         </div>
 
-        <button type="submit">Update Bet</button>
+        <button type="submit">UPDATE BET</button>
     </form>
 
 </div>

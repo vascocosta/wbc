@@ -25,7 +25,7 @@
             <input type="password" id="password" name="password" required>
         </div>
 
-        <button type="submit">Login</button>
+        <button type="submit">LOGIN</button>
     </form>
 </div>
 {% endblock content %}

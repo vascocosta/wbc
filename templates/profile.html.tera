@@ -276,7 +276,7 @@
             </select>
         </div>
 
-        <button type="submit">Update</button>
+        <button type="submit">UPDATE PROFILE</button>
     </form>
 </div>
 
