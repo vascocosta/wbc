@@ -38,7 +38,7 @@ body {
 .navbar a {
     color: var(--white);
     text-decoration: none;
-    margin-left: 15px;
+    margin-right: 15px;
     font-weight: bold;
     text-transform: uppercase;
     font-size: 0.9rem;
