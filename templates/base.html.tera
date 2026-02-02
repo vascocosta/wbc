@@ -13,10 +13,10 @@
         <div class="navbar-inner">
             <div>
                 <a href="/">Home</a>
+                <a href="/rules">Rules</a>
             </div>
 
             <div>
-                <a href="/rules">Rules</a>
                 <a href="/bet">Bet</a>
                 <a href="/latest">Latest</a>
 
