@@ -157,5 +157,15 @@
         <strong>{{ correct_five }}</strong> =
         <strong>{{ correct_podium + 0 + correct_podium + 0 + correct_five }}</strong> points.
     </p>
+
+    <h2>Disclaimer</h2>
+
+    <p>
+        This game is a private fantasy competition intended solely for entertainment among
+        a group of online friends. No money, items of value, or real-world prizes are wagered
+        or awarded. All bets and points have no monetary value and cannot be exchanged for any
+        form of compensation. This game does not constitute gambling under applicable law and
+        is provided purely for fun. The word bet here always means a fantasy prediction.
+    </p>
 </div>
 {% endblock content %}
