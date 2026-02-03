@@ -1,0 +1,22 @@
+{% extends "base" %}
+
+{% block title %}Disclaimer{% endblock title %}
+
+{% block content %}
+<div class="wide">
+    <h2>Disclaimer</h2>
+
+    <p>
+        This game is a private fantasy competition intended solely for entertainment among
+        a group of online friends. No money, items of value, or real-world prizes are wagered
+        or awarded. All bets and points have no monetary value and cannot be exchanged for any
+        form of compensation. This game does not constitute gambling under applicable law and
+        is provided purely for fun. The word bet here always means a fantasy prediction.
+
+        This game is an unofficial fan-made fantasy competition and is not affiliated with,
+        endorsed by, or connected to Formula 1, FIA, or any teams, drivers, or event organisers.
+        All trademarks and event names are the property of their respective owners and are used
+        for identification purposes only.
+    </p>
+</div>
+{% endblock content %}

@@ -384,6 +384,13 @@ pub async fn rules(cookies: &CookieJar<'_>) -> Template {
     )
 }
 
+#[get("/disclaimer")]
+pub async fn disclaimer(cookies: &CookieJar<'_>) -> Template {
+    let logged_in = cookies.get_private("session").is_some();
+
+    Template::render("disclaimer", context! { logged_in })
+}
+
 #[catch(401)]
 pub fn unauthorized() -> Flash<Redirect> {
     Flash::error(Redirect::to(uri!(login_form)), "Please login to continue")

@@ -19,6 +19,7 @@ fn rocket() -> _ {
             routes![
                 bet_form,
                 bet_submit,
+                disclaimer,
                 history,
                 index,
                 latest,
