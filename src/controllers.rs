@@ -183,6 +183,7 @@ pub async fn play_form(
 #[post("/play", data = "<form_data>")]
 pub async fn play_submit(
     cookies: &CookieJar<'_>,
+    _user: User,
     db: &State<Mutex<Database<&str>>>,
     form_data: Form<Guess>,
 ) -> Template {
