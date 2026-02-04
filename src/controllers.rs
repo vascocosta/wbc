@@ -264,7 +264,11 @@ pub async fn logout(cookies: &CookieJar<'_>) -> Redirect {
 }
 
 #[get("/profile")]
-pub async fn profile_form(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -> Template {
+pub async fn profile_form(
+    cookies: &CookieJar<'_>,
+    _user: User,
+    db: &State<Mutex<Database<&str>>>,
+) -> Template {
     let logged_in = cookies.get_private("session").is_some();
 
     let token = match cookies.get_private("session") {
@@ -293,6 +297,7 @@ pub async fn profile_form(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&st
 #[post("/profile", data = "<form_data>")]
 pub async fn profile_submit(
     cookies: &CookieJar<'_>,
+    _user: User,
     db: &State<Mutex<Database<&str>>>,
     form_data: Form<Profile>,
 ) -> Template {
