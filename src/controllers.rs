@@ -207,7 +207,7 @@ pub async fn play_submit(
     // Unless a user can guess the encrypted private session cookie from another user, we are safe. :)
     if !guess.username.eq_ignore_ascii_case(&user.username) {
         return Template::render(
-            "name",
+            "play",
             context! { current_event, drivers, guess, error: "Unauthenticated.", logged_in },
         );
     }
