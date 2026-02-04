@@ -11,7 +11,7 @@
         {% if error %} {{ error }} {% endif %}
     </div>
 
-    <form action="/profile" method="post" onsubmit="return validateProfile();">
+    <form action="/profile" method="post" onsubmit="return validate();">
         <div>
             <label for="password">Change Password</label>
             <input type="password" id="password" name="password">
@@ -281,10 +281,10 @@
 </div>
 
 <script>
-function validateProfile() {
+function validate() {
     const pass = document.getElementById("password").value;
 
-    if (pass.length < 6 || pass.includes(" ") || ! /^[!-~]+$/.test(pass)) {
+    if (pass.length > 0 && (pass.length < 6 || pass.includes(" ") || ! /^[!-~]+$/.test(pass))) {
         document.getElementById("message").className = "message error";
         document.getElementById("message").innerHTML = "The password must contain at least 6 alphanumeric chars only.";
 
