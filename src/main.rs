@@ -17,8 +17,6 @@ fn rocket() -> _ {
         .mount(
             "/",
             routes![
-                bet_form,
-                bet_submit,
                 disclaimer,
                 history,
                 index,
@@ -26,6 +24,8 @@ fn rocket() -> _ {
                 login_form,
                 login_submit,
                 logout,
+                play_form,
+                play_submit,
                 profile_form,
                 profile_submit,
                 register_form,

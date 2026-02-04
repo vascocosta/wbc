@@ -6,10 +6,10 @@
 <div class="wide">
 
     <div class="hero">
-        <h1>Welcome to the WBC</h1>
+        <h1>World Bwoah Competition</h1>
         <p>
             Become the new world champion.
-            Predict the top 5 finishers of every F1 race and earn points.
+            Guess the top 5 finishers of every race and earn points.
         </p>
     </div>
 
@@ -21,11 +21,11 @@
                     <p class="event-name">{{ current_event.name }}</p>
                     <p class="event-category"><strong>{{ current_event.category }}</strong></p>
                     <p class="event-meta" id="datetime">{{ current_event.datetime }}</p>
-                    <p class="event-deadline" id="delta">Bet deadline: calculating...</p>
+                    <p class="event-deadline" id="delta">Ends in: calculating...</p>
                 </div>
 
                 <div class="event-actions">
-                    <a href="/bet" class="btn">PLACE BET</a>
+                    <a href="/play" class="btn">PLAY</a>
                 </div>
 
             </div>
@@ -36,7 +36,7 @@
 
     {% if points | length > 0 %}
     <div class="table-wrapper">
-        <table class="bets-table">
+        <table class="guesses-table">
             <caption>Leaderboard</caption>
             <thead>
                 <tr>
@@ -57,7 +57,7 @@
         </table>
     </div>
     {% else %}
-    <p class="muted">No bets placed yet.</p>
+    <p class="muted">No guesses yet.</p>
     {% endif %}
 
 </div>
@@ -78,7 +78,7 @@ setInterval(() => {
 
     if (isNaN(targetDate)) return;
 
-    deltaElement.innerHTML = `Bet deadline: <strong>${formatDelta(targetDate)}</strong>`;
+    deltaElement.innerHTML = `Ends in: <strong>${formatDelta(targetDate)}</strong>`;
 }, 1000);
 
 function formatDate(rawDate) {

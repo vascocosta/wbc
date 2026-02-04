@@ -7,23 +7,23 @@
     <h2>General Rules</h2>
 
     <p>
-        In this game you place a fantasy bet which tries to guess the top five drivers
+        In this game you make a fantasy guess which tries to predict the top five drivers
         of a race in their exact finishing order. Points are awarded based on how closely
         your prediction matches the official race result. For further details concerning
         how the points are awarded please check the scoring system section below.
     </p>
 
     <p>
-        For each race there is a deadline to place a bet, which is the exact time of the
-        start of the formation lap. If you place a bet after the deadline, the system will
-        automatically register that bet for the next race, so be careful. In the advent of
+        For each race there is a deadline for you to play, which is the exact time of the
+        start of the formation lap. If you play after the deadline, then the system will
+        automatically register that guess for the next race, so be careful. In the advent of
         a delayed start to the race, this deadline will <strong>not</strong> move forward.
     </p>
 
     <p>
         The displayed deadline date and time tries to be localised to your time zone, but
-        please double check this is the case and place a banker bet earlier on. You can
-        always update your bet for the current race as many times as you want, before that
+        please double check this is the case and make a banker guess earlier on. You can
+        always update your guess for the current race as many times as you want, before that
         time.
     </p>
 
@@ -36,7 +36,7 @@
     <h2>Scoring system</h2>
 
     <p>
-        For each position in your bet, the scoring works as follows:
+        For each position in your guess, the scoring works as follows:
     </p>
 
     <ul>
@@ -64,7 +64,7 @@
 
     <h2>Examples</h2>
 
-    <h3>Example 1: Perfect Bet</h3>
+    <h3>Example 1: Perfect Guess</h3>
 
     <p><strong>Official result:</strong></p>
     <ul>
@@ -75,7 +75,7 @@
         <li>P4: Sainz</li>
     </ul>
 
-    <p><strong>Your bet:</strong></p>
+    <p><strong>Your guess:</strong></p>
 
     <p>
         All drivers are in the correct positions.
@@ -111,7 +111,7 @@
         <li>P5: Sainz</li>
     </ul>
 
-    <p><strong>Your bet:</strong></p>
+    <p><strong>Your guess:</strong></p>
 
     <ul>
         <li>P1: Norris — correct driver, wrong place → <strong>{{ wrong_place }}</strong></li>
@@ -140,7 +140,7 @@
         <li>P5: Sainz</li>
     </ul>
 
-    <p><strong>Your bet:</strong></p>
+    <p><strong>Your guess:</strong></p>
 
     <ul>
         <li>P1: Verstappen — correct position → <strong>{{ correct_podium }}</strong></li>

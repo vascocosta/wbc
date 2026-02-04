@@ -23,7 +23,7 @@ pub struct Profile {
 }
 
 #[derive(Clone, Deserialize, FromForm, PartialEq, Serialize)]
-pub struct Bet {
+pub struct Guess {
     pub race: String,
     pub username: String,
     pub p1: String,
@@ -33,7 +33,7 @@ pub struct Bet {
     pub p5: String,
 }
 
-impl Default for Bet {
+impl Default for Guess {
     fn default() -> Self {
         Self {
             race: "".to_string(),
@@ -48,8 +48,8 @@ impl Default for Bet {
 }
 
 #[derive(Serialize)]
-pub struct ScoredBet<'a> {
-    pub bet: &'a Bet,
+pub struct ScoredGuess<'a> {
+    pub guess: &'a Guess,
     pub points: u16,
 }
 

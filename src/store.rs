@@ -13,7 +13,7 @@ use itertools::Itertools;
 use rocket::{State, futures::future::join_all, tokio::sync::Mutex};
 use uuid::Uuid;
 
-use crate::models::{Bet, Driver, Event, RaceResult, ScoredBet, User};
+use crate::models::{Driver, Event, Guess, RaceResult, ScoredGuess, User};
 
 const CATEGORY: &str = "formula 1";
 const CHANNEL: &str = "#formula1";
@@ -115,21 +115,21 @@ impl<'a> Store<'a> {
         self.db.lock().await.find("drivers", |_| true).await
     }
 
-    pub async fn get_bets(
+    pub async fn get_guesses(
         &self,
         username: Option<&str>,
         race: Option<&str>,
-    ) -> Result<Vec<Bet>, DbError> {
+    ) -> Result<Vec<Guess>, DbError> {
         self.db
             .lock()
             .await
-            .find("bets", |b: &Bet| {
+            .find("guesses", |g: &Guess| {
                 (if let Some(username) = username {
-                    b.username.eq_ignore_ascii_case(&username)
+                    g.username.eq_ignore_ascii_case(&username)
                 } else {
                     true
                 }) && (if let Some(race) = race {
-                    b.race.eq_ignore_ascii_case(&race)
+                    g.race.eq_ignore_ascii_case(&race)
                 } else {
                     true
                 })
@@ -137,19 +137,19 @@ impl<'a> Store<'a> {
             .await
     }
 
-    pub async fn update_bet(&self, bet: Bet, current_race: &str) -> Result<(), DbError> {
-        let username = bet.username.to_lowercase();
+    pub async fn update_guess(&self, guess: Guess, current_race: &str) -> Result<(), DbError> {
+        let username = guess.username.to_lowercase();
 
         let db_lock = self.db.lock().await;
 
         if let Err(e) = db_lock
-            .update("bets", bet.clone(), |b: &&Bet| {
-                b.username.to_lowercase() == username && b.race.eq_ignore_ascii_case(current_race)
+            .update("guesses", guess.clone(), |g: &&Guess| {
+                g.username.to_lowercase() == username && g.race.eq_ignore_ascii_case(current_race)
             })
             .await
         {
             match e {
-                DbError::NoMatch => match db_lock.insert("bets", bet).await {
+                DbError::NoMatch => match db_lock.insert("guesses", guess).await {
                     Ok(_) => return Ok(()),
                     Err(_) => return Err(DbError::Io(Error::from(ErrorKind::Other))),
                 },
@@ -177,17 +177,17 @@ impl<'a> Store<'a> {
             .ok_or(DbError::NoMatch)
     }
 
-    pub async fn scored_bets(
+    pub async fn scored_guesses(
         &self,
-        bets: &'a [Bet],
+        guesses: &'a [Guess],
         normalized_results: &HashMap<String, RaceResult>,
-    ) -> Vec<ScoredBet<'a>> {
-        let futures: Vec<_> = bets
+    ) -> Vec<ScoredGuess<'a>> {
+        let futures: Vec<_> = guesses
             .iter()
-            .map(|b| async move {
-                ScoredBet {
-                    bet: b,
-                    points: self.score_bet(b, normalized_results).await,
+            .map(|g| async move {
+                ScoredGuess {
+                    guess: g,
+                    points: self.score_guess(g, normalized_results).await,
                 }
             })
             .collect();
@@ -195,19 +195,23 @@ impl<'a> Store<'a> {
         join_all(futures).await
     }
 
-    async fn score_bet(&self, bet: &Bet, normalized_results: &HashMap<String, RaceResult>) -> u16 {
-        let result = match normalized_results.get(&bet.race) {
+    async fn score_guess(
+        &self,
+        guess: &Guess,
+        normalized_results: &HashMap<String, RaceResult>,
+    ) -> u16 {
+        let result = match normalized_results.get(&guess.race) {
             Some(result) => result,
             None => return 0,
         };
 
-        let bet_positions = [&bet.p1, &bet.p2, &bet.p3, &bet.p4, &bet.p5];
+        let guess_positions = [&guess.p1, &guess.p2, &guess.p3, &guess.p4, &guess.p5];
         let result_positions = [&result.p1, &result.p2, &result.p3, &result.p4, &result.p5];
 
         let mut score = 0;
 
-        for (pos, bet_driver) in bet_positions.iter().enumerate() {
-            if bet_driver.eq_ignore_ascii_case(&result_positions[pos]) {
+        for (pos, guess_driver) in guess_positions.iter().enumerate() {
+            if guess_driver.eq_ignore_ascii_case(&result_positions[pos]) {
                 score += if pos < 3 {
                     CORRECT_PODIUM
                 } else {
@@ -215,7 +219,7 @@ impl<'a> Store<'a> {
                 };
             } else if result_positions
                 .iter()
-                .any(|result_driver| bet_driver.eq_ignore_ascii_case(&result_driver))
+                .any(|result_driver| guess_driver.eq_ignore_ascii_case(&result_driver))
             {
                 score += WRONG_PLACE;
             }

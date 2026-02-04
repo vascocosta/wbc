@@ -1,6 +1,6 @@
 {% extends "base" %}
 
-{% block title %}Bet{% endblock title %}
+{% block title %}Play{% endblock title %}
 
 {% block content %}
 <div class="form-wrapper">
@@ -11,16 +11,16 @@
         {% if error %} {{ error }} {% endif %}
     </div>
 
-    <form action="/bet" method="post" onsubmit="return validateBet();">
+    <form action="/play" method="post" onsubmit="return validate();">
 
-        <input type="hidden" name="race" value="{{ bet.race }}">
-        <input type="hidden" name="username" value={{ bet.username }}>
+        <input type="hidden" name="race" value="{{ guess.race }}">
+        <input type="hidden" name="username" value={{ guess.username }}>
 
         <div>
             <label for="p1">P1</label>
             <select id="p1" name="p1" required>
                 {% for driver in drivers %}
-                    <option value="{{ driver.code }}" {% if driver.code == bet.p1 %}selected{% endif %}>
+                    <option value="{{ driver.code }}" {% if driver.code == guess.p1 %}selected{% endif %}>
                         {{ driver.code }} ({{ driver.name }})
                     </option>
                 {% endfor %}
@@ -31,7 +31,7 @@
             <label for="p2">P2</label>
             <select id="p2" name="p2" required>
                 {% for driver in drivers %}
-                    <option value="{{ driver.code }}" {% if driver.code == bet.p2 %}selected{% endif %}>
+                    <option value="{{ driver.code }}" {% if driver.code == guess.p2 %}selected{% endif %}>
                         {{ driver.code }} ({{ driver.name }})
                     </option>
                 {% endfor %}
@@ -42,7 +42,7 @@
             <label for="p3">P3</label>
             <select id="p3" name="p3" required>
                 {% for driver in drivers %}
-                    <option value="{{ driver.code }}" {% if driver.code == bet.p3 %}selected{% endif %}>
+                    <option value="{{ driver.code }}" {% if driver.code == guess.p3 %}selected{% endif %}>
                         {{ driver.code }} ({{ driver.name }})
                     </option>
                 {% endfor %}
@@ -53,7 +53,7 @@
             <label for="p4">P4</label>
             <select id="p4" name="p4" required>
                 {% for driver in drivers %}
-                    <option value="{{ driver.code }}" {% if driver.code == bet.p4 %}selected{% endif %}>
+                    <option value="{{ driver.code }}" {% if driver.code == guess.p4 %}selected{% endif %}>
                         {{ driver.code }} ({{ driver.name }})
                     </option>
                 {% endfor %}
@@ -64,20 +64,20 @@
             <label for="p5">P5</label>
             <select id="p5" name="p5" required>
                 {% for driver in drivers %}
-                    <option value="{{ driver.code }}" {% if driver.code == bet.p5 %}selected{% endif %}>
+                    <option value="{{ driver.code }}" {% if driver.code == guess.p5 %}selected{% endif %}>
                         {{ driver.code }} ({{ driver.name }})
                     </option>
                 {% endfor %}
             </select>
         </div>
 
-        <button type="submit">UPDATE BET</button>
+        <button type="submit">UPDATE</button>
     </form>
 
 </div>
 
 <script>
-function validateBet() {
+function validate() {
     const elements = ['p1', 'p2', 'p3', 'p4', 'p5'];
     const drivers = elements.map(id => document.getElementById(id).value);
     const uniqueDrivers = new Set(drivers);

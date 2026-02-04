@@ -12,7 +12,7 @@ use rocket::{
 };
 use rocket_dyn_templates::{Template, context};
 
-use crate::models::{Bet, Profile, Registration, ScoredBet, User};
+use crate::models::{Guess, Profile, Registration, ScoredGuess, User};
 use crate::store::{CORRECT_FIVE, CORRECT_PODIUM, PARLAY, Store, WRONG_PLACE};
 
 #[get("/")]
@@ -31,22 +31,24 @@ pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -
         }
     };
 
-    let bets = match store.get_bets(None, None).await {
-        Ok(bets) => bets,
+    let guesses = match store.get_guesses(None, None).await {
+        Ok(guesses) => guesses,
         Err(_) => {
             return Template::render(
                 "history",
-                context! { error: "Could not get bets.", logged_in },
+                context! { error: "Could not get guesses.", logged_in },
             );
         }
     };
-    let scored_bets = store.scored_bets(&bets, &normalized_results).await;
-    let grouped_bets = scored_bets.iter().into_group_map_by(|b| &b.bet.username);
+    let scored_guesses = store.scored_guesses(&guesses, &normalized_results).await;
+    let grouped_guesses = scored_guesses
+        .iter()
+        .into_group_map_by(|g| &g.guess.username);
 
-    let points: Vec<(usize, (&String, u16))> = grouped_bets
+    let points: Vec<(usize, (&String, u16))> = grouped_guesses
         .into_iter()
         .map(|(username, group)| {
-            let total_points: u16 = group.into_iter().map(|b| b.points).sum();
+            let total_points: u16 = group.into_iter().map(|g| g.points).sum();
             (username, total_points)
         })
         .sorted_by(|a, b| b.1.cmp(&a.1))
@@ -81,24 +83,24 @@ pub async fn history(
         }
     };
 
-    let bets = match store.get_bets(Some(&user.username), None).await {
-        Ok(bets) => bets,
+    let guesses = match store.get_guesses(Some(&user.username), None).await {
+        Ok(guesses) => guesses,
         Err(_) => {
             return Template::render(
                 "history",
-                context! { error: "Could not get your bet.", logged_in },
+                context! { error: "Could not get your guess.", logged_in },
             );
         }
     };
-    let scored_bets: Vec<ScoredBet<'_>> = store
-        .scored_bets(&bets, &normalized_results)
+    let scored_guesses: Vec<ScoredGuess<'_>> = store
+        .scored_guesses(&guesses, &normalized_results)
         .await
         .into_iter()
         .rev()
         .take(24)
         .collect();
 
-    Template::render("history", context! {scored_bets, logged_in})
+    Template::render("history", context! {scored_guesses, logged_in})
 }
 
 #[get("/latest")]
@@ -117,28 +119,28 @@ pub async fn latest(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) 
         }
     };
 
-    let bets = match store.get_bets(None, None).await {
-        Ok(bets) => bets,
+    let guesses = match store.get_guesses(None, None).await {
+        Ok(guesses) => guesses,
         Err(_) => {
             return Template::render(
                 "latest",
-                context! { error: "Could not get bets.", logged_in },
+                context! { error: "Could not get guesses.", logged_in },
             );
         }
     };
-    let scored_bets: Vec<ScoredBet<'_>> = store
-        .scored_bets(&bets, &normalized_results)
+    let scored_guesses: Vec<ScoredGuess<'_>> = store
+        .scored_guesses(&guesses, &normalized_results)
         .await
         .into_iter()
         .rev()
         .take(20)
         .collect();
 
-    Template::render("latest", context! {scored_bets, logged_in})
+    Template::render("latest", context! {scored_guesses, logged_in})
 }
 
-#[get("/bet")]
-pub async fn bet_form(
+#[get("/play")]
+pub async fn play_form(
     cookies: &CookieJar<'_>,
     user: User,
     db: &State<Mutex<Database<&str>>>,
@@ -154,32 +156,35 @@ pub async fn bet_form(
         .expect("The next event should be available on the database")
         .name;
 
-    let bets = match store
-        .get_bets(Some(&user.username), Some(current_event))
+    let guesses = match store
+        .get_guesses(Some(&user.username), Some(current_event))
         .await
     {
-        Ok(bets) => bets,
+        Ok(guesses) => guesses,
         Err(_) => {
             return Template::render(
-                "bet",
-                context! { current_event, drivers: drivers, bet: Bet::default(), error: "Could not get your bet.", logged_in },
+                "play",
+                context! { current_event, drivers: drivers, guess: Guess::default(), error: "Could not get your guess.", logged_in },
             );
         }
     };
-    let bet = bets.into_iter().next().unwrap_or(Bet {
+    let guess = guesses.into_iter().next().unwrap_or(Guess {
         race: current_event.to_string(),
         username: user.username.clone(),
         ..Default::default()
     });
 
-    Template::render("bet", context! { current_event, drivers, bet, logged_in })
+    Template::render(
+        "play",
+        context! { current_event, drivers, guess, logged_in },
+    )
 }
 
-#[post("/bet", data = "<form_data>")]
-pub async fn bet_submit(
+#[post("/play", data = "<form_data>")]
+pub async fn play_submit(
     cookies: &CookieJar<'_>,
     db: &State<Mutex<Database<&str>>>,
-    form_data: Form<Bet>,
+    form_data: Form<Guess>,
 ) -> Template {
     let logged_in = cookies.get_private("session").is_some();
 
@@ -192,20 +197,20 @@ pub async fn bet_submit(
         .expect("The next event should be available on the database")
         .name;
 
-    // We use a mutable bet binding with an updated race field to avoid a bug.
-    // When posting a new bet after its deadline (through bet_submit), which was rendered by bet_form before,
-    // if we don't use a new bet.race, the deadline could be abused.
-    let mut bet = form_data.into_inner();
-    bet.race = current_event.to_owned();
+    // We use a mutable guess binding with an updated race field to avoid a bug.
+    // When posting a new guess after its deadline (through guess_submit), which was rendered by guess_form before,
+    // if we don't use a new guess.race, the deadline could be abused.
+    let mut guess = form_data.into_inner();
+    guess.race = current_event.to_owned();
 
-    match store.update_bet(bet.clone(), current_event).await {
+    match store.update_guess(guess.clone(), current_event).await {
         Ok(_) => Template::render(
-            "bet",
-            context! { current_event, drivers, bet, success: "Your bet was successfully updated.", logged_in },
+            "play",
+            context! { current_event, drivers, guess, success: "Your guess was successfully updated.", logged_in },
         ),
         Err(_) => Template::render(
-            "bet",
-            context! { current_event, drivers, bet, error: "Problem updating bet.", logged_in
+            "play",
+            context! { current_event, drivers, guess, error: "Problem updating.", logged_in
             },
         ),
     }
@@ -243,7 +248,7 @@ pub async fn login_submit(
 
             cookies.add_private(cookie);
 
-            Ok(Redirect::to(uri! { bet_form }))
+            Ok(Redirect::to(uri! { play_form }))
         }
         None => Err(Template::render(
             "login",

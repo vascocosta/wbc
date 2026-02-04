@@ -4,15 +4,15 @@
 
 {% block content %}
 <div class="form-wrapper">
-    <h1>HISTORY OF YOUR BETS</h1>
+    <h1>HISTORY OF YOUR GUESSES</h1>
 
     <div id="message" class="{% if error %}message error{% endif %}">
         {% if error %} {{ error }} {% endif %}
     </div>
 
-    {% if scored_bets | length > 0 %}
+    {% if scored_guesses | length > 0 %}
     <div class="table-wrapper">
-        <table class="bets-table">
+        <table class="guesses-table">
             <thead>
                 <tr>
                     <th>Race</th>
@@ -25,22 +25,22 @@
                 </tr>
             </thead>
             <tbody>
-                {% for scored_bet in scored_bets %}
+                {% for scored_guess in scored_guesses %}
                 <tr>
-                    <td>{{ scored_bet.bet.race }}</td>
-                    <td data-label="P1">{{ scored_bet.bet.p1 }}</td>
-                    <td data-label="P2">{{ scored_bet.bet.p2 }}</td>
-                    <td data-label="P3">{{ scored_bet.bet.p3 }}</td>
-                    <td data-label="P4">{{ scored_bet.bet.p4 }}</td>
-                    <td data-label="P5">{{ scored_bet.bet.p5 }}</td>
-                    <td data-label="Points">{{ scored_bet.points }}</td>
+                    <td>{{ scored_guess.guess.race }}</td>
+                    <td data-label="P1">{{ scored_guess.guess.p1 }}</td>
+                    <td data-label="P2">{{ scored_guess.guess.p2 }}</td>
+                    <td data-label="P3">{{ scored_guess.guess.p3 }}</td>
+                    <td data-label="P4">{{ scored_guess.guess.p4 }}</td>
+                    <td data-label="P5">{{ scored_guess.guess.p5 }}</td>
+                    <td data-label="Points">{{ scored_guess.points }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     {% else %}
-    <p class="muted">No bets placed yet.</p>
+    <p class="muted">No guesses yet.</p>
     {% endif %}
 </div>
 {% endblock content %}

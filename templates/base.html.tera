@@ -22,7 +22,7 @@
             </div>
 
             <div>
-                <a href="/bet">Bet</a>
+                <a href="/play">Play</a>
                 <a href="/latest">Latest</a>
 
                 {% if logged_in %}

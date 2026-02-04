@@ -84,7 +84,7 @@ form {
     margin-right: auto;
 }
 
-form[action="/bet"] {
+form[action="/play"] {
     max-width: 550px;
 }
 
@@ -258,7 +258,7 @@ button:hover {
     overflow-x: auto;
 }
 
-.bets-table {
+.guesses-table {
     width: 100%;
     border-collapse: collapse;
     background: #fff;
@@ -267,32 +267,32 @@ button:hover {
     font-size: 0.95rem;
 }
 
-.bets-table thead {
+.guesses-table thead {
     background: #f5f5f5;
 }
 
-.bets-table th,
-.bets-table td {
+.guesses-table th,
+.guesses-table td {
     padding: 0.75rem 0.9rem;
     text-align: center;
     white-space: nowrap;
 }
 
-.bets-table th {
+.guesses-table th {
     font-weight: 600;
     color: #333;
     border-bottom: 1px solid #ddd;
 }
 
-.bets-table tbody tr {
+.guesses-table tbody tr {
     border-bottom: 1px solid #eee;
 }
 
-.bets-table tbody tr:last-child {
+.guesses-table tbody tr:last-child {
     border-bottom: none;
 }
 
-.bets-table tbody tr:hover {
+.guesses-table tbody tr:hover {
     background: #fafafa;
 }
 
@@ -302,8 +302,8 @@ button:hover {
     margin-top: 1rem;
 }
 
-.bets-table th:not(:first-child),
-.bets-table td:not(:first-child) {
+.guesses-table th:not(:first-child),
+.guesses-table td:not(:first-child) {
     font-family: monospace;
 }
 
@@ -318,19 +318,19 @@ caption {
 }
 
 @media (max-width: 600px) {
-    .bets-table thead {
+    .guesses-table thead {
         display: none;
     }
 
-    .bets-table,
-    .bets-table tbody,
-    .bets-table tr,
-    .bets-table td {
+    .guesses-table,
+    .guesses-table tbody,
+    .guesses-table tr,
+    .guesses-table td {
         display: block;
         width: 100%;
     }
 
-    .bets-table tr {
+    .guesses-table tr {
         margin-bottom: 1rem;
         border: 1px solid #eee;
         border-radius: 8px;
@@ -338,14 +338,14 @@ caption {
         background: #fff;
     }
 
-    .bets-table td {
+    .guesses-table td {
         display: flex;
         justify-content: space-between;
         padding: 0.4rem 0;
         text-align: left;
     }
 
-    .bets-table td::before {
+    .guesses-table td::before {
         content: attr(data-label);
         font-weight: 800;
         color: #555;
