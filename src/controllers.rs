@@ -183,7 +183,7 @@ pub async fn play_form(
 #[post("/play", data = "<form_data>")]
 pub async fn play_submit(
     cookies: &CookieJar<'_>,
-    _user: User,
+    user: User,
     db: &State<Mutex<Database<&str>>>,
     form_data: Form<Guess>,
 ) -> Template {
@@ -198,10 +198,22 @@ pub async fn play_submit(
         .expect("The next event should be available on the database")
         .name;
 
-    // We use a mutable guess binding with an updated race field to avoid a bug.
+    let mut guess = form_data.into_inner();
+
+    // Return early with an authentication error if guess.username differs from user.username.
+    // Since user is a User guard, it can only be instanced with a valid private session cookie.
+    // Therefore this if guarantees that the username in the guess must be from an authenticated user.
+    // In other words the username in the guess must be from the user creating/updating the guess.
+    // Unless a user can guess the encrypted private session cookie from another user, we are safe. :)
+    if !guess.username.eq_ignore_ascii_case(&user.username) {
+        return Template::render(
+            "name",
+            context! { current_event, drivers, guess, error: "Unauthenticated.", logged_in },
+        );
+    }
+
     // When posting a new guess after its deadline (through guess_submit), which was rendered by guess_form before,
     // if we don't use a new guess.race, the deadline could be abused.
-    let mut guess = form_data.into_inner();
     guess.race = current_event.to_owned();
 
     match store.update_guess(guess.clone(), current_event).await {
