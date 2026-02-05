@@ -61,6 +61,10 @@ impl<'a> Store<'a> {
         }
     }
 
+    pub async fn all_users(&self) -> Result<Vec<User>, DbError> {
+        self.db.lock().await.find("users", |_| true).await
+    }
+
     pub async fn update_user(&self, user: User, token: &str) -> Result<(), DbError> {
         self.db
             .lock()
