@@ -14,6 +14,7 @@ use crate::store::Store;
 pub struct Registration {
     pub username: String,
     pub password: String,
+    pub country: Option<String>,
 }
 
 #[derive(FromForm)]

@@ -31,7 +31,12 @@ impl<'a> Store<'a> {
         Self { db }
     }
 
-    pub async fn add_user(&self, username: &str, password: &str) -> Result<(), DbError> {
+    pub async fn add_user(
+        &self,
+        username: &str,
+        password: &str,
+        country: Option<String>,
+    ) -> Result<(), DbError> {
         let db_lock = self.db.lock().await;
 
         let users = db_lock
@@ -47,7 +52,7 @@ impl<'a> Store<'a> {
                 password: Self::hash_password(password)
                     .await
                     .map_err(|_| DbError::NoMatch)?,
-                country: "".to_string(),
+                country: country.unwrap_or_default(),
             };
 
             db_lock.insert("users", user).await

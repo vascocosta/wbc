@@ -400,7 +400,11 @@ pub async fn register_submit(
     let registration = form_data.into_inner();
 
     match store
-        .add_user(&registration.username, &registration.password)
+        .add_user(
+            &registration.username,
+            &registration.password,
+            registration.country,
+        )
         .await
     {
         Ok(_) => Ok(Flash::success(
