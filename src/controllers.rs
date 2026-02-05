@@ -276,35 +276,52 @@ pub async fn logout(cookies: &CookieJar<'_>) -> Redirect {
     Redirect::to(uri!(index))
 }
 
-#[get("/profile")]
+#[get("/profile?<token>")]
 pub async fn profile_form(
+    token: Option<String>,
     cookies: &CookieJar<'_>,
-    _user: User,
     db: &State<Mutex<Database<&str>>>,
-) -> Template {
+) -> Result<Template, Flash<Redirect>> {
     let logged_in = cookies.get_private("session").is_some();
 
-    let token = match cookies.get_private("session") {
-        Some(token) => token.value().to_owned(),
-        None => {
-            return Template::render(
-                "profile",
-                context! { error: "Could not find your user.", logged_in},
-            );
+    let token = match token {
+        Some(token) => {
+            // Create cookie with the token.
+            let cookie = Cookie::build(("session", token.clone()))
+                .http_only(true)
+                .same_site(SameSite::Lax)
+                .secure(true)
+                .expires(OffsetDateTime::now_utc() + Duration::days(365));
+
+            cookies.add_private(cookie);
+
+            token
         }
+        None => match cookies.get_private("session") {
+            Some(token) => token.value().to_owned(),
+            None => {
+                return Err(Flash::error(
+                    Redirect::to(uri!(login_form)),
+                    "Please login to continue.",
+                ));
+            }
+        },
     };
 
     let user = match Store::get_user(&token, db).await {
         Some(user) => user,
         None => {
-            return Template::render(
-                "profile",
-                context! { error: "Could not find your user.", logged_in },
-            );
+            return Err(Flash::error(
+                Redirect::to(uri!(login_form)),
+                "Could not find your user.",
+            ));
         }
     };
 
-    Template::render("profile", context! { country: &user.country, logged_in})
+    Ok(Template::render(
+        "profile",
+        context! { country: &user.country, logged_in},
+    ))
 }
 
 #[post("/profile", data = "<form_data>")]
@@ -416,5 +433,5 @@ pub async fn disclaimer(cookies: &CookieJar<'_>) -> Template {
 
 #[catch(401)]
 pub fn unauthorized() -> Flash<Redirect> {
-    Flash::error(Redirect::to(uri!(login_form)), "Please login to continue")
+    Flash::error(Redirect::to(uri!(login_form)), "Please login to continue.")
 }

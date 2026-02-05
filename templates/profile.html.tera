@@ -17,6 +17,7 @@
             <input type="password" id="password" name="password">
         </div>
 
+        {% if country %}
         <div>
             <label for="country">Country</label>
             <select class="form-select" autocomplete="country" id="country" name="country">
@@ -275,6 +276,7 @@
                 <option value="ZW" {% if country == "ZW" %}selected{% endif %}>Zimbabwe</option>
             </select>
         </div>
+        {% endif %}
 
         <button type="submit">UPDATE PROFILE</button>
     </form>
