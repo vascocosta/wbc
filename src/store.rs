@@ -255,3 +255,115 @@ impl<'a> Store<'a> {
             .await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rocket::tokio;
+
+    fn normalized_results() -> HashMap<String, RaceResult> {
+        HashMap::from([(
+            "Test GP".to_string(),
+            RaceResult {
+                race: "Test GP".to_string(),
+                p1: "NOR".to_string(),
+                p2: "VER".to_string(),
+                p3: "PIA".to_string(),
+                p4: "RUS".to_string(),
+                p5: "LEC".to_string(),
+            },
+        )])
+    }
+
+    fn perfect_guess() -> Guess {
+        Guess {
+            race: "Test GP".to_string(),
+            username: "test".to_string(),
+            p1: "NOR".to_string(),
+            p2: "VER".to_string(),
+            p3: "PIA".to_string(),
+            p4: "RUS".to_string(),
+            p5: "LEC".to_string(),
+        }
+    }
+
+    fn mixed_guess() -> Guess {
+        Guess {
+            race: "Test GP".to_string(),
+            username: "test".to_string(),
+            p1: "VER".to_string(),
+            p2: "NOR".to_string(),
+            p3: "PIA".to_string(),
+            p4: "LEC".to_string(),
+            p5: "RUS".to_string(),
+        }
+    }
+
+    fn partial_guess() -> Guess {
+        Guess {
+            race: "Test GP".to_string(),
+            username: "test".to_string(),
+            p1: "NOR".to_string(),
+            p2: "HAM".to_string(),
+            p3: "PIA".to_string(),
+            p4: "ANT".to_string(),
+            p5: "LEC".to_string(),
+        }
+    }
+
+    #[tokio::test]
+    async fn score_guess() {
+        let db = Mutex::new(Database::new("test_data", None));
+        let store = Store::new(State::from(&db));
+
+        let perfect_score = store
+            .score_guess(&perfect_guess(), &normalized_results())
+            .await;
+        let mixed_score = store
+            .score_guess(&mixed_guess(), &normalized_results())
+            .await;
+        let partial_score = store
+            .score_guess(&partial_guess(), &normalized_results())
+            .await;
+
+        assert!(perfect_score == 25);
+        assert!(mixed_score == 7);
+        assert!(partial_score == 12);
+    }
+
+    #[tokio::test]
+    async fn scored_guesses() {
+        let db = Mutex::new(Database::new("test_data", None));
+        let store = Store::new(State::from(&db));
+
+        let guesses = [perfect_guess(), mixed_guess(), partial_guess()];
+        let scored_guesses = store.scored_guesses(&guesses, &normalized_results()).await;
+
+        assert!(
+            scored_guesses[0].points + scored_guesses[1].points + scored_guesses[2].points == 44
+        )
+    }
+
+    #[tokio::test]
+    async fn update_guess() {
+        let db = Mutex::new(Database::new("test_data", None));
+        let store = Store::new(State::from(&db));
+
+        let result = store.update_guess(perfect_guess(), "Test GP").await;
+        let guess = store
+            .get_guesses(Some("test"), Some("Test GP"))
+            .await
+            .unwrap_or_default();
+
+        assert!(
+            result.is_ok()
+                && guess[0].race == "Test GP"
+                && guess[0].username == "test"
+                && guess[0].p1 == "NOR"
+                && guess[0].p2 == "VER"
+                && guess[0].p3 == "PIA"
+                && guess[0].p4 == "RUS"
+                && guess[0].p5 == "LEC"
+        )
+    }
+}
