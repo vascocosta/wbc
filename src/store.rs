@@ -313,7 +313,7 @@ mod tests {
 
     #[tokio::test]
     async fn score_guess() {
-        let db = Mutex::new(Database::new("test_data", None));
+        let db = Mutex::new(Database::new("test_data/score_guess/", None));
         let store = Store::new(State::from(&db));
 
         let perfect_score = store
@@ -333,7 +333,7 @@ mod tests {
 
     #[tokio::test]
     async fn scored_guesses() {
-        let db = Mutex::new(Database::new("test_data", None));
+        let db = Mutex::new(Database::new("test_data/scored_guesses/", None));
         let store = Store::new(State::from(&db));
 
         let guesses = [perfect_guess(), mixed_guess(), partial_guess()];
@@ -345,8 +345,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn update_guess() {
-        let db = Mutex::new(Database::new("test_data", None));
+    async fn get_update_guesses() {
+        let db = Mutex::new(Database::new("test_data/update_guess/", None));
         let store = Store::new(State::from(&db));
 
         let result = store.update_guess(perfect_guess(), "Test GP").await;
@@ -354,6 +354,8 @@ mod tests {
             .get_guesses(Some("test"), Some("Test GP"))
             .await
             .unwrap_or_default();
+
+        assert!(!guess.is_empty());
 
         assert!(
             result.is_ok()
@@ -365,5 +367,75 @@ mod tests {
                 && guess[0].p4 == "RUS"
                 && guess[0].p5 == "LEC"
         )
+    }
+
+    #[tokio::test]
+    async fn add_update_user() {
+        let db = Mutex::new(Database::new("test_data/add_update_user/", None));
+        let store = Store::new(State::from(&db));
+
+        assert!(
+            db.lock()
+                .await
+                .delete("users", |_: &&User| true)
+                .await
+                .is_ok()
+        );
+
+        assert!(
+            store
+                .add_user("test", "********", Some("PT".to_string()))
+                .await
+                .is_ok()
+        );
+
+        let token = db
+            .lock()
+            .await
+            .find("users", |u: &User| u.username.eq_ignore_ascii_case("test"))
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .next()
+            .unwrap_or_default()
+            .token;
+
+        assert!(
+            store
+                .update_user(
+                    User {
+                        token: token.clone(),
+                        username: "test".to_string(),
+                        password: "new_password".to_string(),
+                        country: "PT".to_string(),
+                    },
+                    &token
+                )
+                .await
+                .is_ok()
+        );
+    }
+
+    #[tokio::test]
+    async fn validate_user() {
+        let db = Mutex::new(Database::new("test_data/validate_user/", None));
+        let store = Store::new(State::from(&db));
+
+        assert!(
+            db.lock()
+                .await
+                .delete("users", |_: &&User| true)
+                .await
+                .is_ok()
+        );
+
+        assert!(
+            store
+                .add_user("test", "********", Some("PT".to_string()))
+                .await
+                .is_ok()
+        );
+
+        assert!(store.validate_user("test", "********").await.is_some());
     }
 }
