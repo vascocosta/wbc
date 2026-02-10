@@ -96,6 +96,10 @@ setInterval(() => {
 
     if (isNaN(targetDate)) return;
 
+    if (targetDate < Date.now()) {
+        window.location.replace(window.location.pathname);
+    }
+
     deltaElement.innerHTML = `Deadline: <strong>${formatDelta(targetDate)}</strong>`;
 }, 1000);
 
