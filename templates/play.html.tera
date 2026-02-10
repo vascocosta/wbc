@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="form-wrapper">
-    <h1>{{ current_event }}</h1>
+    <h3>{{ current_event.name }}</h3>
 
     <div id="message" class="{% if success %}message info{% endif %}{% if error %}message error{% endif %}">
         {% if success %} {{ success }} {% endif %}
@@ -71,12 +71,85 @@
             </select>
         </div>
 
+        <p class="event-meta" id="datetime">{{ current_event.datetime }}</p>
+        <p class="event-deadline" id="delta">Deadline: calculating...</p>
+
         <button type="submit">UPDATE</button>
     </form>
 
 </div>
 
 <script>
+const element = document.getElementById("datetime");
+const rawDate = element.textContent.trim();
+
+document.addEventListener("DOMContentLoaded", () => {
+    formatDate(rawDate);
+});
+
+setInterval(() => {
+    const deltaElement = document.getElementById("delta");
+
+    if (!deltaElement) return;
+
+    const targetDate = new Date(rawDate);
+
+    if (isNaN(targetDate)) return;
+
+    deltaElement.innerHTML = `Deadline: <strong>${formatDelta(targetDate)}</strong>`;
+}, 1000);
+
+function formatDate(rawDate) {
+    const date = new Date(rawDate);
+
+    if (isNaN(date)) return;
+
+    element.textContent = date.toLocaleString();
+}
+
+function formatDelta(targetDate) {
+    const diffMs = targetDate - Date.now();
+    const future = diffMs > 0;
+
+    let remaining = Math.abs(diffMs);
+
+    const units = [
+        ["day",    86_400_000],
+        ["hour",    3_600_000],
+        ["minute",     60_000],
+        ["second",      1_000]
+    ];
+
+    const pr = new Intl.PluralRules();
+    const nf = new Intl.NumberFormat();
+
+    const unitLabels = {
+        day: { one: "day", other: "days" },
+        hour: { one: "hour", other: "hours" },
+        minute: { one: "minute", other: "minutes" },
+        second: { one: "second", other: "seconds" }
+    };
+
+    const parts = [];
+
+    for (const [unit, ms] of units) {
+        const value = Math.floor(remaining / ms);
+        if (value > 0) {
+            const form = pr.select(value);
+            parts.push(`${nf.format(value)} ${unitLabels[unit][form]}`);
+            remaining %= ms;
+        }
+    }
+
+    if (parts.length === 0) {
+        return "just now";
+    }
+
+    return future
+        ? `in ${parts.join(", ")}`
+        : `${parts.join(", ")} ago`;
+}
+
 function validate() {
     const elements = ['p1', 'p2', 'p3', 'p4', 'p5'];
     const drivers = elements.map(id => document.getElementById(id).value);

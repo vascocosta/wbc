@@ -169,11 +169,10 @@ pub async fn play_form(
     let current_event = &store
         .next_event()
         .await
-        .expect("The next event should be available on the database")
-        .name;
+        .expect("The next event should be available on the database");
 
     let guesses = match store
-        .get_guesses(Some(&user.username), Some(current_event))
+        .get_guesses(Some(&user.username), Some(&current_event.name))
         .await
     {
         Ok(guesses) => guesses,
@@ -185,7 +184,7 @@ pub async fn play_form(
         }
     };
     let guess = guesses.into_iter().next().unwrap_or(Guess {
-        race: current_event.to_string(),
+        race: current_event.name.to_string(),
         username: user.username.clone(),
         ..Default::default()
     });
@@ -211,8 +210,7 @@ pub async fn play_submit(
     let current_event = &store
         .next_event()
         .await
-        .expect("The next event should be available on the database")
-        .name;
+        .expect("The next event should be available on the database");
 
     let mut guess = form_data.into_inner();
 
@@ -230,9 +228,9 @@ pub async fn play_submit(
 
     // When posting a new guess after its deadline (through guess_submit), which was rendered by guess_form before,
     // if we don't use a new guess.race, the deadline could be abused.
-    guess.race = current_event.to_owned();
+    guess.race = current_event.name.clone();
 
-    match store.update_guess(guess.clone(), current_event).await {
+    match store.update_guess(guess.clone(), &current_event.name).await {
         Ok(_) => Template::render(
             "play",
             context! { current_event, drivers, guess, success: "Your guess was successfully updated.", logged_in },
