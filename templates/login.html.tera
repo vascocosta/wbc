@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="form-wrapper">
-    <h1>Login</h1>
+    <h2>LOGIN</h2>
 
     {% if flash %}
         <div class="message info">{{ flash }}</div>

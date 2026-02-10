@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="form-wrapper">
-    <h1>Profile</h1>
+    <h2>PROFILE</h2>
     
     <div id="message" class="{% if success %}message info{% endif %}{% if error %}message error{% endif %}">
         {% if success %} {{ success }} {% endif %}

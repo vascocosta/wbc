@@ -20,7 +20,7 @@
                     <p class="event-name">{{ current_event.name }}</p>
                     <p class="event-category"><strong>{{ current_event.category }}</strong></p>
                     <p class="event-meta" id="datetime">{{ current_event.datetime }}</p>
-                    <p class="event-deadline" id="delta">Ends in: calculating...</p>
+                    <p class="event-deadline" id="delta">Deadline: calculating...</p>
                 </div>
 
                 <div class="event-actions">
@@ -77,7 +77,7 @@ setInterval(() => {
 
     if (isNaN(targetDate)) return;
 
-    deltaElement.innerHTML = `Ends in: <strong>${formatDelta(targetDate)}</strong>`;
+    deltaElement.innerHTML = `Deadline: <strong>${formatDelta(targetDate)}</strong>`;
 }, 1000);
 
 function formatDate(rawDate) {

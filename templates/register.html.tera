@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="form-wrapper">
-    <h1>Register</h1>
+    <h2>REGISTER</h2>
     
     <div id="message" class="{% if error %}message error{% endif %}">
         {% if error %} {{ error }} {% endif %}

@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="wide">
-    <h2>Disclaimer</h2>
+    <h2>DISCLAIMER</h2>
 
     <p>
         This game is a private fantasy competition intended solely for entertainment among

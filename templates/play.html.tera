@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="form-wrapper">
-    <h3>{{ current_event.name }}</h3>
+    <h2>{{ current_event.name }}</h2>
 
     <div id="message" class="{% if success %}message info{% endif %}{% if error %}message error{% endif %}">
         {% if success %} {{ success }} {% endif %}
