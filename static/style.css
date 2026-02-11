@@ -13,11 +13,12 @@
 }
 
 body {
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Roboto", sans-serif;
+    font-weight: 500;
     margin: 0;
     background-color: var(--medium);
     color: var(--dark);
-    line-height: 1.6;
+    line-height: 1.6em;
 }
 
 .navbar {
