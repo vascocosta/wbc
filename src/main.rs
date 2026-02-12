@@ -1,3 +1,4 @@
+mod api;
 mod controllers;
 mod models;
 mod store;
@@ -9,6 +10,7 @@ use csv_db::Database;
 use rocket::{fs::FileServer, tokio::sync::Mutex};
 use rocket_dyn_templates::Template;
 
+use api::*;
 use controllers::*;
 
 #[launch]
@@ -33,6 +35,7 @@ fn rocket() -> _ {
                 rules,
             ],
         )
+        .mount("/api", routes![leaderboard])
         .register("/", catchers![unauthorized])
         .attach(Template::fairing())
         .manage(Mutex::new(Database::new("data", None)))
