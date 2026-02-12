@@ -4,10 +4,17 @@ use rocket::{State, http::Status, serde::json::Json, tokio::sync::Mutex};
 
 use crate::store::Store;
 
-#[get("/leaderboard")]
+#[derive(Responder)]
+pub enum LeaderboardResponse {
+    Json(Json<Vec<(String, u16)>>),
+    Text(String),
+}
+
+#[get("/leaderboard?<format>")]
 pub async fn leaderboard(
     db: &State<Mutex<Database<&str>>>,
-) -> Result<Json<Vec<(String, u16)>>, Status> {
+    format: Option<&str>,
+) -> Result<LeaderboardResponse, Status> {
     let store = Store::new(db);
 
     let normalized_results = store
@@ -24,5 +31,20 @@ pub async fn leaderboard(
         .iter()
         .into_group_map_by(|g| &g.guess.username);
 
-    Ok(Json(store.leaderboard(grouped_guesses).await))
+    let leaderboard = store.leaderboard(grouped_guesses).await;
+    let text_leaderboard: String = leaderboard
+        .iter()
+        .enumerate()
+        .map(|x| format!("{}. {} {}", x.0 + 1, x.1.0, x.1.1))
+        .join(" | ");
+    let json_leaderboard = Json(leaderboard);
+
+    match format {
+        Some(kind) => match kind {
+            "json" | "JSON" => Ok(LeaderboardResponse::Json(json_leaderboard)),
+            "text" | "TEXT" => Ok(LeaderboardResponse::Text(text_leaderboard)),
+            _ => return Err(Status::InternalServerError),
+        },
+        None => Ok(LeaderboardResponse::Json(json_leaderboard)),
+    }
 }
