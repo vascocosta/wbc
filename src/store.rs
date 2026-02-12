@@ -255,7 +255,7 @@ impl<'a> Store<'a> {
     pub async fn leaderboard(
         &self,
         grouped_guesses: HashMap<&String, Vec<&ScoredGuess<'_>>>,
-    ) -> Vec<(usize, (String, u16))> {
+    ) -> Vec<(String, u16)> {
         let users: HashMap<String, String> = self
             .db
             .lock()
@@ -280,7 +280,6 @@ impl<'a> Store<'a> {
                 (user_str, total_points)
             })
             .sorted_by(|a, b| b.1.cmp(&a.1))
-            .enumerate()
             .collect()
     }
 }

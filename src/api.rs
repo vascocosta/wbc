@@ -7,7 +7,7 @@ use crate::store::Store;
 #[get("/leaderboard")]
 pub async fn leaderboard(
     db: &State<Mutex<Database<&str>>>,
-) -> Result<Json<Vec<(usize, (String, u16))>>, Status> {
+) -> Result<Json<Vec<(String, u16)>>, Status> {
     let store = Store::new(db);
 
     let normalized_results = store

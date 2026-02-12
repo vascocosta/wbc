@@ -47,9 +47,9 @@
             <tbody>
                 {% for row in leaderboard %}
                 <tr>
-                    <td data-label="Position">{{ row.0 + 1 }}</td>
-                    <td data-label="Username">{{ row.1.0 }}</td>
-                    <td data-label="Points">{{ row.1.1 }}</td>
+                    <td data-label="Position">{{ loop.index }}</td>
+                    <td data-label="Username">{{ row.0 }}</td>
+                    <td data-label="Points">{{ row.1 }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
