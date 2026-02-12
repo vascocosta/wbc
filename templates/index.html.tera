@@ -33,7 +33,7 @@
         {% endif %}
     </div>
 
-    {% if points | length > 0 %}
+    {% if leaderboard | length > 0 %}
     <div class="table-wrapper">
         <table class="guesses-table">
             <caption>Leaderboard</caption>
@@ -45,7 +45,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for row in points %}
+                {% for row in leaderboard %}
                 <tr>
                     <td data-label="Position">{{ row.0 + 1 }}</td>
                     <td data-label="Username">{{ row.1.0 }}</td>

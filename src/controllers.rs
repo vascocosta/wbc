@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-
-use country_emoji::code_to_flag;
 use csv_db::Database;
 use itertools::Itertools;
 use rocket::{
@@ -48,35 +45,14 @@ pub async fn index(cookies: &CookieJar<'_>, db: &State<Mutex<Database<&str>>>) -
         .iter()
         .into_group_map_by(|g| &g.guess.username);
 
-    let users: HashMap<String, String> = store
-        .all_users()
-        .await
-        .unwrap_or_default()
-        .into_iter()
-        .map(|u| (u.username, u.country))
-        .collect();
-
-    let points: Vec<(usize, (String, u16))> = grouped_guesses
-        .into_iter()
-        .map(|(username, group)| {
-            let total_points: u16 = group.into_iter().map(|g| g.points).sum();
-            let user_str = format!(
-                "{} {}",
-                username,
-                code_to_flag(users.get(username).unwrap_or(&"".to_string())).unwrap_or_default()
-            );
-            (user_str, total_points)
-        })
-        .sorted_by(|a, b| b.1.cmp(&a.1))
-        .enumerate()
-        .collect();
+    let leaderboard = store.leaderboard(grouped_guesses).await;
 
     let current_event = &store
         .next_event()
         .await
         .expect("The next event should be available on the database");
 
-    Template::render("index", context! { logged_in, current_event, points})
+    Template::render("index", context! { logged_in, current_event, leaderboard})
 }
 
 #[get("/history")]

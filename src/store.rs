@@ -8,6 +8,7 @@ use argon2::{
     password_hash::{PasswordHash, PasswordVerifier, SaltString, rand_core::OsRng},
 };
 use chrono::Utc;
+use country_emoji::code_to_flag;
 use csv_db::{Database, DbError};
 use itertools::Itertools;
 use rocket::{State, futures::future::join_all, tokio::sync::Mutex};
@@ -59,10 +60,6 @@ impl<'a> Store<'a> {
         } else {
             Err(DbError::Io(Error::from(ErrorKind::AlreadyExists)))
         }
-    }
-
-    pub async fn all_users(&self) -> Result<Vec<User>, DbError> {
-        self.db.lock().await.find("users", |_| true).await
     }
 
     pub async fn update_user(&self, user: User, token: &str) -> Result<(), DbError> {
@@ -253,6 +250,38 @@ impl<'a> Store<'a> {
             .await
             .find("results", |_: &RaceResult| true)
             .await
+    }
+
+    pub async fn leaderboard(
+        &self,
+        grouped_guesses: HashMap<&String, Vec<&ScoredGuess<'_>>>,
+    ) -> Vec<(usize, (String, u16))> {
+        let users: HashMap<String, String> = self
+            .db
+            .lock()
+            .await
+            .find("users", |_: &User| true)
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .map(|u| (u.username, u.country))
+            .collect();
+
+        grouped_guesses
+            .into_iter()
+            .map(|(username, group)| {
+                let total_points: u16 = group.into_iter().map(|g| g.points).sum();
+                let user_str = format!(
+                    "{} {}",
+                    username,
+                    code_to_flag(users.get(username).unwrap_or(&"".to_string()))
+                        .unwrap_or_default()
+                );
+                (user_str, total_points)
+            })
+            .sorted_by(|a, b| b.1.cmp(&a.1))
+            .enumerate()
+            .collect()
     }
 }
 
