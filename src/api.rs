@@ -7,7 +7,8 @@ use crate::store::Store;
 #[derive(Responder)]
 pub enum LeaderboardResponse {
     Json(Json<Vec<(String, u16)>>),
-    Text(String),
+    PlainText(String),
+    Irc(String),
 }
 
 #[get("/leaderboard?<format>")]
@@ -36,14 +37,32 @@ pub async fn leaderboard(
     match format {
         Some(kind) => match kind {
             "json" | "JSON" => Ok(LeaderboardResponse::Json(Json(leaderboard))),
+            "irc" | "IRC" => {
+                let irc_leaderboard: String = leaderboard
+                    .iter()
+                    .enumerate()
+                    .map(|r| {
+                        let code: String =
+                            r.1.0
+                                .chars()
+                                .filter(|c| c.is_alphanumeric())
+                                .take(3)
+                                .collect();
+
+                        format!("{}. {} {}", r.0 + 1, code.to_ascii_uppercase(), r.1.1)
+                    })
+                    .join(" | ");
+
+                Ok(LeaderboardResponse::Irc(irc_leaderboard))
+            }
             "text" | "TEXT" => {
                 let text_leaderboard: String = leaderboard
                     .iter()
                     .enumerate()
-                    .map(|x| format!("{}. {} {}", x.0 + 1, x.1.0, x.1.1))
+                    .map(|r| format!("{}. {} {}", r.0 + 1, r.1.0, r.1.1))
                     .join(" | ");
 
-                Ok(LeaderboardResponse::Text(text_leaderboard))
+                Ok(LeaderboardResponse::PlainText(text_leaderboard))
             }
             _ => return Err(Status::InternalServerError),
         },
