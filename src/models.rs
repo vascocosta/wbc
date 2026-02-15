@@ -80,7 +80,13 @@ impl<'r> FromRequest<'r> for User {
                 Some(user) => Outcome::Success(user),
                 None => Outcome::Forward(Status::Unauthorized),
             },
-            None => Outcome::Forward(Status::Unauthorized),
+            None => match req.headers().get_one("x-api-key") {
+                Some(key) => match Store::get_user(key, db).await {
+                    Some(user) => Outcome::Success(user),
+                    None => Outcome::Forward(Status::Unauthorized),
+                },
+                None => Outcome::Forward(Status::Unauthorized),
+            },
         }
     }
 }

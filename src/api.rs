@@ -1,8 +1,11 @@
 use csv_db::Database;
 use itertools::Itertools;
-use rocket::{State, http::Status, serde::json::Json, tokio::sync::Mutex};
+use rocket::{State, form::Form, http::Status, serde::json::Json, tokio::sync::Mutex};
 
-use crate::store::Store;
+use crate::{
+    models::{Guess, User},
+    store::Store,
+};
 
 #[derive(Responder)]
 pub enum LeaderboardResponse {
@@ -67,5 +70,32 @@ pub async fn leaderboard(
             _ => return Err(Status::InternalServerError),
         },
         None => Ok(LeaderboardResponse::Json(Json(leaderboard))),
+    }
+}
+
+#[post("/play", data = "<post_data>")]
+async fn play(
+    user: User,
+    db: &State<Mutex<Database<&str>>>,
+    post_data: Form<Guess>,
+) -> Result<(), Status> {
+    let store = Store::new(db);
+
+    let current_event = &store
+        .next_event()
+        .await
+        .expect("The next event should be available on the database");
+
+    let mut guess = post_data.into_inner();
+
+    if !guess.username.eq_ignore_ascii_case(&user.username) {
+        return Err(Status::Unauthorized);
+    }
+
+    guess.race = current_event.name.clone();
+
+    match store.update_guess(guess.clone(), &current_event.name).await {
+        Ok(_) => Ok(()),
+        Err(_) => Err(Status::InternalServerError),
     }
 }
