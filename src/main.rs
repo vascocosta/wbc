@@ -35,7 +35,7 @@ fn rocket() -> _ {
                 rules,
             ],
         )
-        .mount("/api", routes![leaderboard])
+        .mount("/api", routes![leaderboard, play])
         .register("/", catchers![unauthorized])
         .attach(Template::fairing())
         .manage(Mutex::new(Database::new("data", None)))

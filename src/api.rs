@@ -74,7 +74,7 @@ pub async fn leaderboard(
 }
 
 #[post("/play", data = "<post_data>")]
-async fn play(
+pub async fn play(
     user: User,
     db: &State<Mutex<Database<&str>>>,
     post_data: Form<Guess>,
