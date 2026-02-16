@@ -1,6 +1,6 @@
 use csv_db::Database;
 use itertools::Itertools;
-use rocket::{State, form::Form, http::Status, serde::json::Json, tokio::sync::Mutex};
+use rocket::{State, http::Status, serde::json::Json, tokio::sync::Mutex};
 
 use crate::{
     models::{Guess, User},
@@ -77,7 +77,7 @@ pub async fn leaderboard(
 pub async fn play(
     user: User,
     db: &State<Mutex<Database<&str>>>,
-    post_data: Form<Guess>,
+    post_data: Json<Guess>,
 ) -> Result<(), Status> {
     let store = Store::new(db);
 
