@@ -94,6 +94,14 @@ pub async fn play(
 
     guess.race = current_event.name.clone();
 
+    // Since Third-party clients can send fields using any case, we normalize it.
+    guess.username = user.username;
+    guess.p1 = guess.p1.to_uppercase();
+    guess.p2 = guess.p2.to_uppercase();
+    guess.p3 = guess.p3.to_uppercase();
+    guess.p4 = guess.p4.to_uppercase();
+    guess.p5 = guess.p5.to_uppercase();
+
     match store.update_guess(guess.clone(), &current_event.name).await {
         Ok(_) => Ok(()),
         Err(_) => Err(Status::InternalServerError),
