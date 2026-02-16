@@ -1,7 +1,7 @@
 use csv_db::Database;
 use itertools::Itertools;
 use rocket::{
-    State,
+    Request, State,
     form::Form,
     http::{Cookie, CookieJar, SameSite},
     request::FlashMessage,
@@ -426,6 +426,12 @@ pub async fn disclaimer(cookies: &CookieJar<'_>) -> Template {
 }
 
 #[catch(401)]
-pub fn unauthorized() -> Flash<Redirect> {
-    Flash::error(Redirect::to(uri!(login_form)), "Please login to continue.")
+pub fn unauthorized(req: &Request) -> Result<Flash<Redirect>, &'static str> {
+    match req.headers().get_one("x-api-key") {
+        Some(_) => Err("Unauthorized"),
+        None => Ok(Flash::error(
+            Redirect::to(uri!(login_form)),
+            "Please login to continue.",
+        )),
+    }
 }
