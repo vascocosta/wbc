@@ -108,10 +108,7 @@ pub async fn play(
     }
 
     match store.update_guess(guess.clone(), &current_event.name).await {
-        Ok(_) => Ok(format!(
-            "Your bet for {} was updated.",
-            current_event.description
-        )),
+        Ok(_) => Ok(format!("Your bet for {} was updated.", current_event.name)),
         Err(_) => Err((Status::InternalServerError, "Could not update your guess.")),
     }
 }
