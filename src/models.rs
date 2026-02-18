@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use chrono::{DateTime, Utc};
 use csv_db::Database;
 use rocket::{
@@ -32,6 +34,38 @@ pub struct Guess {
     pub p3: String,
     pub p4: String,
     pub p5: String,
+}
+
+impl Guess {
+    pub fn normalize(&mut self) {
+        self.race = self.race.to_uppercase();
+        self.username = self.username.to_uppercase();
+        self.p1 = self.p1.to_uppercase();
+        self.p2 = self.p2.to_uppercase();
+        self.p3 = self.p3.to_uppercase();
+        self.p4 = self.p4.to_uppercase();
+        self.p5 = self.p5.to_uppercase();
+    }
+
+    pub fn valid(&self, drivers: &[Driver]) -> bool {
+        let driver_codes: HashSet<String> = drivers.iter().map(|d| d.code.to_lowercase()).collect();
+        let guesses = [&self.p1, &self.p2, &self.p3, &self.p4, &self.p5];
+
+        let mut seen = HashSet::new();
+
+        for guess in guesses {
+            let code = guess.to_lowercase();
+            if !driver_codes.contains(&code) {
+                return false;
+            }
+
+            if !seen.insert(code) {
+                return false;
+            }
+        }
+
+        true
+    }
 }
 
 impl Default for Guess {

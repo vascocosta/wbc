@@ -78,9 +78,10 @@ pub async fn play(
     user: User,
     db: &State<Mutex<Database<&str>>>,
     post_data: Json<Guess>,
-) -> Result<(), Status> {
+) -> Result<(), (Status, &'static str)> {
     let store = Store::new(db);
 
+    let drivers = store.all_drivers().await.ok().unwrap_or_default();
     let current_event = &store
         .next_event()
         .await
@@ -89,21 +90,25 @@ pub async fn play(
     let mut guess = post_data.into_inner();
 
     if !guess.username.eq_ignore_ascii_case(&user.username) {
-        return Err(Status::Unauthorized);
+        return Err((
+            Status::Unauthorized,
+            "Guess username does not match authenticated user.",
+        ));
     }
 
     guess.race = current_event.name.clone();
 
-    // Since Third-party clients can send fields using any case, we normalize it.
-    guess.username = user.username;
-    guess.p1 = guess.p1.to_uppercase();
-    guess.p2 = guess.p2.to_uppercase();
-    guess.p3 = guess.p3.to_uppercase();
-    guess.p4 = guess.p4.to_uppercase();
-    guess.p5 = guess.p5.to_uppercase();
+    guess.normalize();
+
+    if !guess.valid(&drivers) {
+        return Err((
+            Status::InternalServerError,
+            "Your guess must contain 5 different driver codes.",
+        ));
+    }
 
     match store.update_guess(guess.clone(), &current_event.name).await {
         Ok(_) => Ok(()),
-        Err(_) => Err(Status::InternalServerError),
+        Err(_) => Err((Status::InternalServerError, "Could not update your guess.")),
     }
 }

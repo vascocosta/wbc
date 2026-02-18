@@ -206,6 +206,22 @@ pub async fn play_submit(
     // if we don't use a new guess.race, the deadline could be abused.
     guess.race = current_event.name.clone();
 
+    // Make sure we always store a guess with consistent case for every field.
+    guess.normalize();
+
+    if !guess.valid(&drivers) {
+        return Template::render(
+            "play",
+            context! {
+                current_event,
+                drivers,
+                guess,
+                error: "Your guess must contain 5 different driver codes.",
+                logged_in,
+            },
+        );
+    }
+
     match store.update_guess(guess.clone(), &current_event.name).await {
         Ok(_) => Template::render(
             "play",
