@@ -39,7 +39,7 @@ pub struct Guess {
 impl Guess {
     pub fn normalize(&mut self) {
         self.race = self.race.to_uppercase();
-        self.username = self.username.to_uppercase();
+        self.username = self.username.to_lowercase();
         self.p1 = self.p1.to_uppercase();
         self.p2 = self.p2.to_uppercase();
         self.p3 = self.p3.to_uppercase();
