@@ -78,7 +78,7 @@ pub async fn play(
     user: User,
     db: &State<Mutex<Database<&str>>>,
     post_data: Json<Guess>,
-) -> Result<(), (Status, &'static str)> {
+) -> Result<String, (Status, &'static str)> {
     let store = Store::new(db);
 
     let drivers = store.all_drivers().await.ok().unwrap_or_default();
@@ -108,7 +108,10 @@ pub async fn play(
     }
 
     match store.update_guess(guess.clone(), &current_event.name).await {
-        Ok(_) => Ok(()),
+        Ok(_) => Ok(format!(
+            "Your bet for {} was updated.",
+            current_event.description
+        )),
         Err(_) => Err((Status::InternalServerError, "Could not update your guess.")),
     }
 }
