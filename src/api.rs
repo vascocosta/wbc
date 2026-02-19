@@ -14,6 +14,47 @@ pub enum LeaderboardResponse {
     Irc(String),
 }
 
+#[derive(Responder)]
+pub enum GuessesResponse {
+    Json(Json<Vec<Guess>>),
+    PlainText(String),
+}
+
+#[get("/guesses?<username>&<format>")]
+pub async fn guesses(
+    db: &State<Mutex<Database<&str>>>,
+    username: Option<&str>,
+    format: Option<&str>,
+) -> Result<GuessesResponse, Status> {
+    let store = Store::new(db);
+
+    let current_event = &store
+        .next_event()
+        .await
+        .expect("The next event should be available on the database");
+
+    let guesses = store
+        .get_guesses(username, Some(&current_event.name))
+        .await
+        .unwrap_or_default();
+
+    match format {
+        Some(kind) => match kind {
+            "json" | "JSON" => Ok(GuessesResponse::Json(Json(guesses))),
+            "text" | "TEXT" | "irc" | "IRC" => {
+                let text_guesses = guesses
+                    .iter()
+                    .map(|g| format!("{}: {} {} {} {} {}", g.race, g.p1, g.p2, g.p3, g.p4, g.p5))
+                    .join(" | ");
+
+                Ok(GuessesResponse::PlainText(text_guesses))
+            }
+            _ => return Err(Status::InternalServerError),
+        },
+        None => Ok(GuessesResponse::Json(Json(guesses))),
+    }
+}
+
 #[get("/leaderboard?<format>")]
 pub async fn leaderboard(
     db: &State<Mutex<Database<&str>>>,
