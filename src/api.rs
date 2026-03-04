@@ -45,7 +45,7 @@ pub async fn guesses(
                 let text_guesses = guesses
                     .iter()
                     .map(|g| format!("{}: {} {} {} {} {}", g.race, g.p1, g.p2, g.p3, g.p4, g.p5))
-                    .join(" | ");
+                    .join("\n");
 
                 Ok(GuessesResponse::PlainText(text_guesses))
             }
