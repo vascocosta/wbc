@@ -18,6 +18,7 @@ pub enum LeaderboardResponse {
 pub enum GuessesResponse {
     Json(Json<Vec<Guess>>),
     PlainText(String),
+    Irc(String),
 }
 
 #[derive(Responder)]
@@ -48,10 +49,23 @@ pub async fn guesses(
     match format {
         Some(kind) => match kind {
             "json" | "JSON" => Ok(GuessesResponse::Json(Json(guesses))),
-            "text" | "TEXT" | "irc" | "IRC" => {
-                let text_guesses = guesses
+            "irc" | "IRC" => {
+                let irc_guesses = guesses
                     .iter()
                     .map(|g| format!("{}: {} {} {} {} {}", g.race, g.p1, g.p2, g.p3, g.p4, g.p5))
+                    .join("\n");
+
+                Ok(GuessesResponse::Irc(irc_guesses))
+            }
+            "text" | "TEXT" => {
+                let text_guesses = guesses
+                    .iter()
+                    .map(|g| {
+                        format!(
+                            "{} {} {} {} {} {} {}",
+                            g.race, g.username, g.p1, g.p2, g.p3, g.p4, g.p5
+                        )
+                    })
                     .join("\n");
 
                 Ok(GuessesResponse::PlainText(text_guesses))
