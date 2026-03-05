@@ -125,7 +125,7 @@ pub async fn leaderboard(
                     .iter()
                     .enumerate()
                     .map(|r| format!("{}. {} {}", r.0 + 1, r.1.0, r.1.1))
-                    .join(" | ");
+                    .join("\n");
 
                 Ok(LeaderboardResponse::PlainText(text_leaderboard))
             }
