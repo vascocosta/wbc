@@ -11,7 +11,7 @@ use chrono::Utc;
 use country_emoji::code_to_flag;
 use csv_db::{Database, DbError};
 use itertools::Itertools;
-use rocket::{State, futures::future::join_all, tokio::sync::Mutex};
+use rocket::{State, form::validate::Contains, futures::future::join_all, tokio::sync::Mutex};
 use uuid::Uuid;
 
 use crate::models::{Driver, Event, Guess, RaceResult, ScoredGuess, User};
@@ -258,7 +258,7 @@ impl<'a> Store<'a> {
             .await
             .find("users", |u: &User| {
                 if let Some(username) = username {
-                    u.username.eq_ignore_ascii_case(&username)
+                    u.username.to_lowercase().contains(username)
                 } else {
                     true
                 }
