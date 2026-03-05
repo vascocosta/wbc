@@ -20,6 +20,13 @@ pub enum GuessesResponse {
     PlainText(String),
 }
 
+#[derive(Responder)]
+pub enum UsersResponse {
+    Json(Json<Vec<User>>),
+    PlainText(String),
+    Irc(String),
+}
+
 #[get("/guesses?<username>&<format>")]
 pub async fn guesses(
     db: &State<Mutex<Database<&str>>>,
@@ -154,5 +161,37 @@ pub async fn play(
             current_event.name
         )),
         Err(_) => Err((Status::InternalServerError, "Could not update your guess.")),
+    }
+}
+
+#[get("/users?<username>&<format>")]
+pub async fn users(
+    db: &State<Mutex<Database<&str>>>,
+    username: Option<&str>,
+    format: Option<&str>,
+) -> Result<UsersResponse, Status> {
+    let store = Store::new(db);
+
+    let users = store.get_users(username).await.unwrap_or_default();
+
+    match format {
+        Some(kind) => match kind {
+            "json" | "JSON" => Ok(UsersResponse::Json(Json(users))),
+            "irc" | "IRC" => {
+                let irc_users = users
+                    .iter()
+                    .map(|u| format!("{} {}", u.username, u.country))
+                    .join(" | ");
+
+                Ok(UsersResponse::Irc(irc_users))
+            }
+            "text" | "TEXT" => {
+                let text_users = users.iter().map(|u| &u.username).join("\n");
+
+                Ok(UsersResponse::PlainText(text_users))
+            }
+            _ => return Err(Status::InternalServerError),
+        },
+        None => Ok(UsersResponse::Json(Json(users))),
     }
 }

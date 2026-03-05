@@ -252,6 +252,20 @@ impl<'a> Store<'a> {
             .await
     }
 
+    pub async fn get_users(&self, username: Option<&str>) -> Result<Vec<User>, DbError> {
+        self.db
+            .lock()
+            .await
+            .find("users", |u: &User| {
+                if let Some(username) = username {
+                    u.username.eq_ignore_ascii_case(&username)
+                } else {
+                    true
+                }
+            })
+            .await
+    }
+
     pub async fn leaderboard(
         &self,
         grouped_guesses: HashMap<&String, Vec<&ScoredGuess<'_>>>,
