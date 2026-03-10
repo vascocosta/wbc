@@ -33,6 +33,7 @@ fn rocket() -> _ {
                 register_form,
                 register_submit,
                 rules,
+                stats,
             ],
         )
         .mount(

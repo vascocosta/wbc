@@ -434,6 +434,13 @@ pub async fn rules(cookies: &CookieJar<'_>) -> Template {
     )
 }
 
+#[get("/stats")]
+pub async fn stats(cookies: &CookieJar<'_>) -> Template {
+    let logged_in = cookies.get_private("session").is_some();
+
+    Template::render("stats", context! { logged_in })
+}
+
 #[get("/disclaimer")]
 pub async fn disclaimer(cookies: &CookieJar<'_>) -> Template {
     let logged_in = cookies.get_private("session").is_some();

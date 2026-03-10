@@ -1,0 +1,71 @@
+{% extends "base" %}
+
+{% block title %}Stats{% endblock title %}
+
+{% block content %}
+<div class="wide">
+<h2>STATS</h2>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<canvas id="racePointsChart"></canvas>
+
+<script>
+async function loadChart() {
+
+  const response = await fetch("https://wbc.gluonspace.com/api/scored_guesses");
+  const data = await response.json();
+
+  const races = [...new Set(data.map(d => d.guess.race))];
+  const users = [...new Set(data.map(d => d.guess.username))];
+
+  const datasets = users.map(user => {
+    return {
+      label: user,
+      data: races.map(race => {
+        const entry = data.find(
+          d => d.guess.username === user && d.guess.race === race
+        );
+        return entry ? entry.points : 0;
+      }),
+      borderWidth: 1
+    };
+  });
+
+  const ctx = document.getElementById("racePointsChart");
+
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: races,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: "Points per Race"
+        }
+      },
+      scales: {
+        x: {
+          stacked: true
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: "Points"
+          }
+        }
+      }
+    }
+  });
+
+}
+
+loadChart();
+</script>
+</div>
+{% endblock content %}
