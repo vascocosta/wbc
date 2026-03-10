@@ -3,7 +3,7 @@ use itertools::Itertools;
 use rocket::{State, http::Status, serde::json::Json, tokio::sync::Mutex};
 
 use crate::{
-    models::{Guess, User},
+    models::{ApiScoredGuess, Guess, User},
     store::Store,
 };
 
@@ -17,6 +17,13 @@ pub enum LeaderboardResponse {
 #[derive(Responder)]
 pub enum GuessesResponse {
     Json(Json<Vec<Guess>>),
+    PlainText(String),
+    Irc(String),
+}
+
+#[derive(Responder)]
+pub enum ScoredGuessesResponse {
+    Json(Json<Vec<ApiScoredGuess>>),
     PlainText(String),
     Irc(String),
 }
@@ -73,6 +80,84 @@ pub async fn guesses(
             _ => return Err(Status::InternalServerError),
         },
         None => Ok(GuessesResponse::Json(Json(guesses))),
+    }
+}
+
+#[get("/scored_guesses?<format>")]
+pub async fn scored_guesses<'a>(
+    db: &State<Mutex<Database<&str>>>,
+    format: Option<&str>,
+) -> Result<ScoredGuessesResponse, Status> {
+    let store = Store::new(db);
+
+    let normalized_results = store
+        .normalized_results()
+        .await
+        .map_err(|_| Status::InternalServerError)?;
+
+    let guesses = store
+        .get_guesses(None, None)
+        .await
+        .map_err(|_| Status::InternalServerError)?;
+    let scored_guesses = store.scored_guesses(&guesses, &normalized_results).await;
+    let api_scored_guesses: Vec<ApiScoredGuess> = scored_guesses
+        .iter()
+        .map(|sg| ApiScoredGuess {
+            guess: sg.guess.clone(),
+            points: sg.points,
+        })
+        .collect();
+
+    match format {
+        Some("json" | "JSON") => Ok(ScoredGuessesResponse::Json(Json(api_scored_guesses))),
+        Some("irc" | "IRC") => {
+            let current_event = &store
+                .next_event()
+                .await
+                .expect("The next event should be available on the database");
+
+            let irc_guesses = api_scored_guesses
+                .iter()
+                .filter(|sg| sg.guess.race.eq_ignore_ascii_case(&current_event.name))
+                .map(|sg| {
+                    format!(
+                        "{}: {} {} {} {} {} {} {}",
+                        sg.guess.race,
+                        sg.guess.username,
+                        sg.guess.p1,
+                        sg.guess.p2,
+                        sg.guess.p3,
+                        sg.guess.p4,
+                        sg.guess.p5,
+                        sg.points,
+                    )
+                })
+                .join("\n");
+
+            Ok(ScoredGuessesResponse::Irc(irc_guesses))
+        }
+        Some("text" | "TEXT") => {
+            let text_guesses = api_scored_guesses
+                .iter()
+                .map(|sg| {
+                    format!(
+                        "{}: {} {} {} {} {} {} {}",
+                        sg.guess.race,
+                        sg.guess.username,
+                        sg.guess.p1,
+                        sg.guess.p2,
+                        sg.guess.p3,
+                        sg.guess.p4,
+                        sg.guess.p5,
+                        sg.points,
+                    )
+                })
+                .join("\n");
+
+            Ok(ScoredGuessesResponse::PlainText(text_guesses))
+        }
+        Some(_) => Err(Status::InternalServerError),
+        None => Ok(ScoredGuessesResponse::Json(Json(api_scored_guesses))),
     }
 }
 

@@ -88,6 +88,12 @@ pub struct ScoredGuess<'a> {
     pub points: u16,
 }
 
+#[derive(Serialize)]
+pub struct ApiScoredGuess {
+    pub guess: Guess,
+    pub points: u16,
+}
+
 #[derive(Default, Deserialize, PartialEq, Serialize)]
 pub struct User {
     pub token: String,
