@@ -6,35 +6,77 @@
 <div class="wide">
 <h2>STATS</h2>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 <canvas id="racePointsChart"></canvas>
+<hr>
+<canvas id="historyChart"></canvas>
 
 <script>
-async function loadChart() {
+async function racePointsChart(data, races, users) {
+  const sortedDatasets = races.map((race, raceIndex) => {
 
-  const response = await fetch("https://wbc.gluonspace.com/api/scored_guesses");
-  const data = await response.json();
+    const racePoints = users.map(user => ({
+      user,
+      points: data.find(d => d.guess.username === user && d.guess.race === race)?.points || 0
+    }));
 
-  const races = [...new Set(data.map(d => d.guess.race))];
-  const users = [...new Set(data.map(d => d.guess.username))];
+    racePoints.sort((a, b) => a.points - b.points);
 
+    return racePoints.map(rp => ({
+      label: rp.user,
+      data: races.map((r, i) => (i === raceIndex ? rp.points : 0)),
+      borderWidth: 1
+    }));
+  }).flat();
+
+  new Chart(document.getElementById("racePointsChart"), {
+    type: "bar",
+    data: {
+      labels: races,
+      datasets: sortedDatasets
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: "Points per Race" },
+        datalabels: {
+          color: "white",
+          anchor: "center",
+          align: "center",
+          formatter: (value, ctx) => (value === 0 ? null : ctx.dataset.label)
+        }
+      },
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, beginAtZero: true }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+async function historyChart(data, races, users) {
   const datasets = users.map(user => {
+    let totalPoints = 0;
+
+    const cumulative = races.map(race => {
+      const entry = data.find(d => d.guess.username === user && d.guess.race === race);
+
+      totalPoints += entry ? entry.points : 0;
+
+      return totalPoints;
+    });
+
     return {
       label: user,
-      data: races.map(race => {
-        const entry = data.find(
-          d => d.guess.username === user && d.guess.race === race
-        );
-        return entry ? entry.points : 0;
-      }),
-      borderWidth: 1
+      data: cumulative,
     };
   });
 
-  const ctx = document.getElementById("racePointsChart");
-
-  new Chart(ctx, {
-    type: "bar",
+  new Chart(document.getElementById("historyChart"), {
+    type: "line",
     data: {
       labels: races,
       datasets: datasets
@@ -42,30 +84,36 @@ async function loadChart() {
     options: {
       responsive: true,
       plugins: {
+        legend: { display: false },
         title: {
           display: true,
-          text: "Points per Race"
-        }
-      },
-      scales: {
-        x: {
-          stacked: true
+          text: "Championship Progression"
         },
-        y: {
-          stacked: true,
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: "Points"
+        datalabels: {
+          align: "right",
+          anchor: "end",
+          formatter: (value, ctx) => {
+            if (ctx.dataIndex === ctx.dataset.data.length - 1) {
+              return ctx.dataset.label;
+            }
+            return null;
           }
         }
       }
-    }
+    },
+    plugins: [ChartDataLabels]
   });
-
 }
 
-loadChart();
+(async () => {
+  const response = await fetch("https://wbc.gluonspace.com/api/scored_guesses");
+  const data = await response.json();
+  const races = [...new Set(data.map(d => d.guess.race))];
+  const users = [...new Set(data.map(d => d.guess.username))];
+
+  await racePointsChart(data, races, users)
+  await historyChart(data, races, users);
+})();
 </script>
 </div>
 {% endblock content %}
