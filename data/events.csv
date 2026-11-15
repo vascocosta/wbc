@@ -1,4 +1,5 @@
 category,name,description,datetime,channel,tags,notify
+[Formula 1],GULF AIR BAHRAIN GRAND PRIX IN MALAYSIA 2026,Race,2026-10-04 07:00:00 UTC,#formula1,f1 formula1 race f1race,true
 [Formula 1],QATAR AIRWAYS QATAR GRAND PRIX 2026,Practice 3,2026-11-28 14:30:00 UTC,#formula1,f1 formula1,true
 [Formula 1],PIRELLI BRITISH GRAND PRIX 2026,Practice 1,2026-07-03 11:30:00 UTC,#formula1,f1 formula1,true
 [Formula 1],ARAMCO JAPANESE GRAND PRIX 2026,Practice 3,2026-03-28 02:30:00 UTC,#formula1,f1 formula1,true
@@ -66,7 +67,7 @@ category,name,description,datetime,channel,tags,notify
 [Formula 1],QATAR AIRWAYS AZERBAIJAN GRAND PRIX 2026,Race,2026-09-26 11:00:00 UTC,#formula1,f1 formula1 race f1race,true
 [Formula 1],QATAR AIRWAYS QATAR GRAND PRIX 2026,Race,2026-11-29 16:00:00 UTC,#formula1,f1 formula1 race f1race,true
 [Formula 1],PIRELLI GRAN PREMIO DITALIA 2026,Practice 1,2026-09-04 10:30:00 UTC,#formula1,f1 formula1,true
-[Formula 1],SINGAPORE AIRLINES SINGAPORE GRAND PRIX 2026,Practice 1,2026-10-09 08:30:00 UTC,#formula1,f1 formula1,true
+[Formula 1],SINGAPORE AIRLINES SINGAPORE GRAND PRIX 2026,Practice 1,2026-10-09 08:30:00 UTC,#simracing,f1 formula1,true
 [Formula 1],LOUIS VUITTON GRAND PRIX DE MONACO 2026,Practice 3,2026-06-06 10:30:00 UTC,#formula1,f1 formula1,true
 [Formula 1],MOT & CHANDON BELGIAN GRAND PRIX 2026,Practice 3,2026-07-18 10:30:00 UTC,#formula1,f1 formula1,true
 [Formula 1],CRYPTO.COM MIAMI GRAND PRIX 2026,Practice 1,2026-05-01 16:30:00 UTC,#formula1,f1 formula1,true
